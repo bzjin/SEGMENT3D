@@ -1,0 +1,974 @@
+
+
+
+
+<!DOCTYPE html>
+<html lang="en-us">
+
+<head>
+    <title>cose | collaborative segmentation |
+        Worker's index</title>
+
+    <link rel="stylesheet"
+          href="static/common/css/base.css">
+
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.0/jquery.min.js"></script>
+
+
+    <script src="http://code.jquery.com/ui/1.9.0/jquery-ui.js"></script>
+
+    <script id="vertexShaderFirstPass" type="x-shader/x-vertex">
+        varying vec3 imageSpaceCoords;
+        uniform float xfactor, yfactor, zfactor;
+
+        void main()
+        {
+            //Set the world space coordinates of the back faces vertices as output.
+            imageSpaceCoords = position + vec3(xfactor /2.0, yfactor/2.0, zfactor/2.0); //move it from [-0.5;0.5] to [0,1]
+            gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+        }
+    </script>
+
+    <script id="fragmentShaderFirstPass" type="x-shader/x-fragment">
+        varying vec3 imageSpaceCoords;
+
+        void main()
+        {
+            //The fragment's world space coordinates as fragment output.
+            gl_FragColor = vec4( imageSpaceCoords.x , imageSpaceCoords.y, imageSpaceCoords.z, 1 );
+        }
+    </script>
+
+    <script id="vertexShaderSecondPass" type="x-shader/x-vertex">
+        varying vec3 imageSpaceCoords;
+        varying vec4 projectedCoords;
+        uniform float xfactor, yfactor, zfactor;
+
+        void main()
+        {
+            imageSpaceCoords = (modelMatrix * vec4(position + vec3(xfactor / 2.0, yfactor / 2.0, zfactor / 2.0), 1.0 )).xyz;
+            gl_Position = projectionMatrix *  modelViewMatrix * vec4( position, 1.0 );
+            projectedCoords =  projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+        }
+    </script>
+
+    <script id="fragmentShaderSecondPass" type="x-shader/x-fragment">
+	varying vec3 imageSpaceCoords;
+	varying vec4 projectedCoords;
+	uniform sampler2D tex, imgTex, transferTex, borderTex, labelTex;
+	uniform sampler2D labelTransferTex;
+	uniform float steps;
+	uniform float alphaCorrection, alphaLabelCorrection, borderThresh;
+
+	uniform float zsize, xfactor, yfactor, zfactor, xslices, yslices;
+	uniform float work_border_x, work_border_y, work_border_z, work_border_alpha;
+	uniform float gammaCorrection;
+
+	uniform int overlay;
+	uniform float overlayAlpha;
+	uniform float overlayDepth;
+	uniform float intensity_as_alpha;
+
+	uniform int useLogTransfFunction;
+	uniform float k_logFun, x0_logFun;
+
+	uniform vec4 clippingPlane;
+
+	uniform vec3 borderColor;
+
+
+	// The maximum distance through our rendering volume is sqrt(3).
+	// The maximum number of steps we take to travel a distance of 1 is 512.
+	// ceil( sqrt(3) * 512 ) = 887
+	// This prevents the back of the image from getting cut off when steps=512 & viewing diagonally.
+	const int MAX_STEPS = 887;
+
+	// Sigmoid to increase contrast
+	float logisticFunction(float x, float k, float L, float x0) {
+		return L / (1.0 + exp(-k*(x-x0)));
+	}
+
+	vec4 clampColor(float val, float thresh, vec4 absColor) {
+		vec4 clamped;
+
+		if(val > thresh) {
+			clamped.a = absColor.a;
+			clamped.r = absColor.r;
+			clamped.g = absColor.g;
+			clamped.b = absColor.b;
+		} else {
+			clamped.a = 0.0;
+			clamped.r = 0.0;
+			clamped.g = 0.0;
+			clamped.b = 0.0;
+		}
+
+		return clamped;
+	}
+
+	vec4 updateBorderVoxelColor(vec4 colorVoxel, vec3 texCoord) {
+	    vec4 white = vec4(1.0, 1.0, 1.0, 1.0);
+        float gamma = 0.0;
+
+        if(texCoord.x <= work_border_x || texCoord.x >= 1.0 - work_border_x ||
+		    texCoord.y <= work_border_y || texCoord.y >= 1.0 - work_border_y ||
+		    texCoord.z <= work_border_z || texCoord.z >= 1.0 - work_border_z) {
+		    gamma = work_border_alpha;
+        }
+
+        return mix(colorVoxel, white, gamma);
+	}
+
+    vec3 applyGammaCorrection(vec3 rgb, float gamma) {
+        return vec3(pow(rgb.r, gamma), pow(rgb.g, gamma), pow(rgb.b, gamma));
+    }
+
+	//Acts like a texture3D using Z slices and trilinear filtering.
+	vec4 sampleAs3DTexture( sampler2D curTex, vec3 texCoord, int overlay, bool useLogTransferFunction )
+	{
+		vec4 colorSlice1, colorSlice2;
+		vec2 texCoordSlice1, texCoordSlice2;
+        vec3 origTexCoord = texCoord;
+
+		//The z coordinate determines which Z slice we have to look for.
+		//Z slice number goes from 0 to zsize-1.0.
+		float zSliceNumber1 = floor(texCoord.z * (1.0 / zfactor) * (zsize-1.0));
+
+		//As we use trilinear we go the next Z slice.
+		float zSliceNumber2 = min( zSliceNumber1 + 1.0, (zsize-1.0)); //Clamp to (zsize-1.0)
+
+		//The Z slices are stored in a matrix of xslices x yslices of Z slices.
+		//The original UV coordinates have to be rescaled by the tile numbers in each row and column.
+		texCoord.x = (texCoord.x * (1.0 / xfactor)) / xslices;
+		texCoord.y = (texCoord.y * (1.0 / yfactor)) / yslices;
+
+		texCoordSlice1 = texCoordSlice2 = texCoord.xy;
+
+		//Add an offset to the original UV coordinates depending on the row and column number.
+		texCoordSlice1.x += (mod(zSliceNumber1, xslices ) / xslices);
+		texCoordSlice1.y += floor(((zsize-1.0) - zSliceNumber1) / xslices) / yslices;
+
+		texCoordSlice2.x += (mod(zSliceNumber2, xslices ) / xslices);
+		texCoordSlice2.y += floor(((zsize-1.0) - zSliceNumber2) / xslices) / yslices;
+
+		//Get the opacity value from the 2D texture.
+		//Bilinear filtering is done at each texture2D by default.
+		colorSlice1 = texture2D( curTex, texCoordSlice1 );
+		colorSlice2 = texture2D( curTex, texCoordSlice2 );
+
+        colorSlice1.rgb = applyGammaCorrection(colorSlice1.rgb, gammaCorrection);
+        colorSlice2.rgb = applyGammaCorrection(colorSlice2.rgb, gammaCorrection);
+
+        // The border color is only updated when this function is sampling the image texture
+        if(overlay == NO_OVERLAY) {
+            colorSlice1 = updateBorderVoxelColor(colorSlice1, origTexCoord);
+            colorSlice2 = updateBorderVoxelColor(colorSlice2, origTexCoord);
+        }
+
+#ifndef MOBILE_OPTIMIZATIONS
+		//Based on the opacity obtained earlier, get the RGB color in the transfer function texture.
+		if(overlay == NO_OVERLAY) {
+			if(useLogTransferFunction) {
+				// Appyling a logistic function to the original intensity of the voxel (i.e., aiming to increase the contrast)
+				float L1 = logisticFunction(colorSlice1.r, k_logFun, 1.0, x0_logFun);
+				float L2 = logisticFunction(colorSlice2.r, k_logFun, 1.0, x0_logFun);
+
+				// Obtaining the color from the transfer function
+				colorSlice1.rgb = texture2D( transferTex, vec2( L1, 1.0) ).rgb;
+				colorSlice2.rgb = texture2D( transferTex, vec2( L2, 1.0) ).rgb;
+				// Using the intensity of the image as alpha
+				colorSlice1.a = colorSlice1.a*(1.0-intensity_as_alpha) + intensity_as_alpha*L1;
+				colorSlice2.a = colorSlice2.a*(1.0-intensity_as_alpha) + intensity_as_alpha*L2;
+            } else {
+				float L1 = colorSlice1.r;
+				float L2 = colorSlice2.r;
+
+				// Obtaining the color from the transfer function
+				colorSlice1.rgb = texture2D( transferTex, vec2( L1, 1.0) ).rgb;
+				colorSlice2.rgb = texture2D( transferTex, vec2( L2, 1.0) ).rgb;
+
+				// Using the intensity of the image as alpha
+				colorSlice1.a = colorSlice1.a*(1.0-intensity_as_alpha) + intensity_as_alpha*L1;
+				colorSlice2.a = colorSlice2.a*(1.0-intensity_as_alpha) + intensity_as_alpha*L2;
+			}
+		} else {
+			vec4 origColorSlice1 = colorSlice1, origColorSlice2 = colorSlice2;
+
+			if(overlay == LABEL_OVERLAY || overlay == BORDER_LABEL_OVERLAY) {
+				float label1 = origColorSlice1.r, label2 = origColorSlice2.r;
+
+				// Obtaining the label's color from the transfer function, which corresponds to a colormap for the labels
+				colorSlice1.rgba = vec4(texture2D( labelTransferTex, vec2( label1, 1.0) ).rgb, 1.0);
+				colorSlice2.rgba = vec4(texture2D( labelTransferTex, vec2( label2, 1.0) ).rgb, 1.0);
+
+				colorSlice1 = clampColor(label1, 0.0, colorSlice1);
+				colorSlice2 = clampColor(label2, 0.0, colorSlice2);
+			} else if(overlay == BORDER_OVERLAY || overlay == BORDER_LABEL_OVERLAY) {
+				colorSlice1 = vec4( origColorSlice1.r, origColorSlice1.r, origColorSlice1.r, 1.0);
+				colorSlice2 = vec4( origColorSlice2.r, origColorSlice2.r, origColorSlice2.r, 1.0);
+			}
+		}
+#endif
+
+		//How distant is zSlice1 to ZSlice2. Used to interpolate between one Z slice and the other.
+		float zDifference = mod(texCoord.z * (zsize-1.0), 1.0);
+
+		//Finally interpolate between the two intermediate colors of each Z slice.
+		return mix(colorSlice1, colorSlice2, zDifference) ;
+	}
+
+	float dotPlane(vec4 plane, vec3 v) {
+		vec3 planeN = normalize(plane.xyz);
+
+		return planeN.x*v.x + planeN.y*v.y + planeN.z*v.z + plane.w;
+	}
+
+
+	bool insideBoundingBox(vec3 currentPosition, vec3 bb_min, vec3 bb_max) {
+        return currentPosition.x >= bb_min.x && currentPosition.y >= bb_min.y && currentPosition.z >= bb_min.z
+                && currentPosition.x <= bb_max.x && currentPosition.y <= bb_max.y && currentPosition.z <= bb_max.z;
+	}
+
+	void main( void ) {
+		vec3 imgCenter = vec3(xfactor / 2.0, yfactor / 2.0, zfactor / 2.0);
+
+		//Transform the coordinates it from [-1;1] to [0;1]
+		vec2 texc = vec2(((projectedCoords.x / projectedCoords.w) + 1.0 ) / 2.0,
+						((projectedCoords.y / projectedCoords.w) + 1.0 ) / 2.0 );
+
+		//The back position is the world space position stored in the texture.
+		vec3 backPos = texture2D(tex, texc).xyz;
+
+		//The front position is the world space position of the second render pass.
+		vec3 frontPos = imageSpaceCoords;
+
+		//The direction from the front position to back position.
+		vec3 dir = backPos - frontPos;
+
+		float rayLength = length(dir);
+
+		//Calculate how long to increment in each step.
+		float delta = 1.0 / steps;
+
+		//The increment in each direction for each step.
+		vec3 deltaDirection = normalize(dir) * delta;
+		float deltaDirectionLength = length(deltaDirection);
+
+		//Start the ray casting from the front position.
+		vec3 currentPosition = frontPos;
+
+		//The color accumulator.
+		vec4 accumulatedColor = vec4(0.0);
+
+		//The alpha value accumulated so far.
+		float accumulatedAlpha = 0.0;
+		float accumulatedLabelAlpha = 0.0;
+
+		//How long has the ray travelled so far.
+		float accumulatedLength = 0.0;
+
+		//If we have twice as many samples, we only need ~1/2 the alpha per sample.
+		//Scaling by 256/10 just happens to give a good value for the alphaCorrection slider.
+		float alphaScaleFactor = 25.6 * delta;
+
+		vec4 colorSample = vec4(0.0, 0.0, 0.0, 0.0), labelColorSample = vec4(0.0, 0.0, 0.0, 0.0);
+		float alphaSample, alphaLabelSample;
+
+		//Perform the ray marching iterations
+		for(int i = 0; i < MAX_STEPS; i++)
+		{
+		    // Getting the vector from the origin to the current position
+			vec3 curPosVec  = currentPosition - imgCenter;
+
+			//Get the voxel intensity value from the 3D texture.
+			colorSample 		= sampleAs3DTexture( imgTex, currentPosition, NO_OVERLAY, (useLogTransfFunction != 0 ) ? true : false );
+
+            alphaLabelSample 	= 0.0;
+			alphaSample 		= 0.0;
+
+			// Computing the distance between the current position and the clipping plane
+			float d = dotPlane(clippingPlane, curPosVec);
+
+
+#ifndef MOBILE_OPTIMIZATIONS
+            // Computing the label color overlay if required by the user
+            if(overlay == LABEL_OVERLAY || overlay == BORDER_LABEL_OVERLAY) {
+                labelColorSample = sampleAs3DTexture( labelTex, currentPosition, overlay, false );
+            }
+
+            // Computing the border color overlay if required by the user
+            if(overlay == BORDER_OVERLAY || overlay == BORDER_LABEL_OVERLAY) {
+                vec4 borderColorSample = sampleAs3DTexture( borderTex, currentPosition, overlay, false );
+
+                // If the display is set to BORDER_OVERLAY, we set the color to borderColor if the intensity (binary value)
+                // is higher than borderThresh. Typically, borderThresh should be 0.5.
+                if(overlay == BORDER_OVERLAY) {
+                    labelColorSample = clampColor(borderColorSample.r, borderThresh, vec4(borderColor.rgb, 1.0));
+                } else {
+                    // otherwise, we manually verify if the intensity is above borderThresh and, if so, we set the
+                    // sample's label color to borderColor. In case the intensity is not above borderThresh, then
+                    // it has the color of the label instead and we do not need to do anything.
+                    if(borderColorSample.r > borderThresh) {
+                        labelColorSample = clampColor(borderColorSample.r, borderThresh, vec4(borderColor.rgb, 1.0));
+                    }
+                }
+            }
+
+            // Combining the label/color overlay
+            if(overlay == LABEL_OVERLAY || overlay == BORDER_OVERLAY || overlay == BORDER_LABEL_OVERLAY) {
+                if(d >= -overlayDepth && d <= 0.0) {
+                    alphaLabelSample = labelColorSample.a * alphaLabelCorrection;
+                    alphaLabelSample *= (1.0 - accumulatedLabelAlpha);
+                    alphaLabelSample *= alphaScaleFactor;
+                }
+            }
+
+
+
+            // Perform the composition. If the distance between the current position and the clipping plane
+            // is negative (behind the clipping plane) and up to a certain depth (usually the size of an image voxel),
+            // We allow the overlay to happen.
+            if(overlay != NO_OVERLAY && d >= -overlayDepth && d <= 0.0) {
+                //Allow the alpha correction customization.
+                alphaSample = colorSample.a * alphaCorrection;
+
+                //Applying this effect to both the color and alpha accumulation results in more realistic transparency.
+                alphaSample *= (1.0 - accumulatedAlpha);
+
+                //Scaling alpha by the number of steps makes the final color invariant to the step size.
+                alphaSample *= alphaScaleFactor;
+
+                if(labelColorSample.a > 0.0 && dotPlane(clippingPlane, normalize(-dir)) >= 0.0) {
+                    accumulatedColor += colorSample * alphaSample * (1.0 - overlayAlpha) + alphaLabelSample * labelColorSample * overlayAlpha;
+                } else {
+                    accumulatedColor += colorSample * alphaSample;
+                }
+
+            } else
+#endif
+			if(d <= 0.0) { //Otherwise, we simply consider the color of the original image for ray casting
+				//Allow the alpha correction customization.
+				alphaSample = colorSample.a * alphaCorrection;
+
+				//Applying this effect to both the color and alpha accumulation results in more realistic transparency.
+				alphaSample *= (1.0 - accumulatedAlpha);
+
+				//Scaling alpha by the number of steps makes the final color invariant to the step size.
+				alphaSample *= alphaScaleFactor;
+
+				accumulatedColor += colorSample * alphaSample;
+			}
+
+
+			//Store the alpha accumulated so far.
+			accumulatedAlpha += alphaSample;
+
+#ifndef MOBILE_OPTIMIZATIONS
+			if(overlay != NO_OVERLAY && d >= -overlayDepth && d <= 0.0) {
+				accumulatedLabelAlpha += alphaLabelSample;
+			}
+#endif
+			//Advance the ray.
+			currentPosition += deltaDirection;
+			accumulatedLength += deltaDirectionLength;
+
+			//If the length traversed is more than the ray length, or if the alpha accumulated reaches 1.0 then exit.
+			if(accumulatedLength >= rayLength || accumulatedAlpha >= 1.0 )
+				break;
+		}
+
+		gl_FragColor  = accumulatedColor;
+
+	}
+</script>
+
+
+    <script id="customPhongFragmentShader" type="x-shader/x-fragment">
+    // Shader modification using tip from http://stackoverflow.com/questions/37090942/how-to-render-clipped-surfaces-as-solid-objects
+    // to render clipped surfaces as solid objects, instead of hollow ones
+    #define PHONG
+
+
+    uniform vec3 diffuse;
+    uniform vec3 emissive;
+    uniform vec3 specular;
+    uniform float shininess;
+    uniform float opacity;
+
+
+    #include <common>
+    #include <packing>
+    #include <color_pars_fragment>
+    #include <uv_pars_fragment>
+    #include <uv2_pars_fragment>
+    #include <map_pars_fragment>
+    #include <alphamap_pars_fragment>
+    #include <aomap_pars_fragment>
+    #include <lightmap_pars_fragment>
+    #include <emissivemap_pars_fragment>
+    #include <envmap_pars_fragment>
+    #include <gradientmap_pars_fragment>
+    #include <fog_pars_fragment>
+    #include <bsdfs>
+    #include <lights_pars>
+    #include <lights_phong_pars_fragment>
+    #include <shadowmap_pars_fragment>
+    #include <bumpmap_pars_fragment>
+    #include <normalmap_pars_fragment>
+    #include <specularmap_pars_fragment>
+    #include <logdepthbuf_pars_fragment>
+    #include <clipping_planes_pars_fragment>
+
+    void main() {
+
+        #include <clipping_planes_fragment>
+
+        vec4 diffuseColor = vec4( diffuse, opacity );
+        ReflectedLight reflectedLight = ReflectedLight( vec3( 0.0 ), vec3( 0.0 ), vec3( 0.0 ), vec3( 0.0 ) );
+        vec3 totalEmissiveRadiance = emissive;
+
+        #include <logdepthbuf_fragment>
+        #include <map_fragment>
+        #include <color_fragment>
+        #include <alphamap_fragment>
+        #include <alphatest_fragment>
+        #include <specularmap_fragment>
+        #include <normal_flip>
+        #include <normal_fragment>
+        #include <emissivemap_fragment>
+
+        // accumulation
+        #include <lights_phong_fragment>
+        #include <lights_template>
+
+        // modulation
+        #include <aomap_fragment>
+
+        vec3 outgoingLight = reflectedLight.directDiffuse + reflectedLight.indirectDiffuse + reflectedLight.directSpecular + reflectedLight.indirectSpecular + totalEmissiveRadiance;
+
+        #include <envmap_fragment>
+
+        if ( !gl_FrontFacing ) {
+
+            gl_FragColor = vec4( outgoingLight, diffuseColor.a );
+
+        } else {
+
+            gl_FragColor = diffuseColor;
+        }
+
+        #include <premultiplied_alpha_fragment>
+        #include <tonemapping_fragment>
+        #include <encodings_fragment>
+        #include <fog_fragment>
+
+    }
+
+    </script>
+
+    <script id="customLambertFragmentShader" type="x-shader/x-fragment">
+    uniform vec3 diffuse;
+    uniform vec3 emissive;
+    uniform float opacity;
+
+    varying vec3 vLightFront;
+
+    #ifdef DOUBLE_SIDED
+
+        varying vec3 vLightBack;
+
+    #endif
+
+    #include <common>
+    #include <packing>
+    #include <color_pars_fragment>
+    #include <uv_pars_fragment>
+    #include <uv2_pars_fragment>
+    #include <map_pars_fragment>
+    #include <alphamap_pars_fragment>
+    #include <aomap_pars_fragment>
+    #include <lightmap_pars_fragment>
+    #include <emissivemap_pars_fragment>
+    #include <envmap_pars_fragment>
+    #include <bsdfs>
+    #include <lights_pars>
+    #include <fog_pars_fragment>
+    #include <shadowmap_pars_fragment>
+    #include <shadowmask_pars_fragment>
+    #include <specularmap_pars_fragment>
+    #include <logdepthbuf_pars_fragment>
+    #include <clipping_planes_pars_fragment>
+
+    void main() {
+
+        #include <clipping_planes_fragment>
+
+        vec4 diffuseColor = vec4( diffuse, opacity );
+        ReflectedLight reflectedLight = ReflectedLight( vec3( 0.0 ), vec3( 0.0 ), vec3( 0.0 ), vec3( 0.0 ) );
+        vec3 totalEmissiveRadiance = emissive;
+
+        #include <logdepthbuf_fragment>
+        #include <map_fragment>
+        #include <color_fragment>
+        #include <alphamap_fragment>
+        #include <alphatest_fragment>
+        #include <specularmap_fragment>
+        #include <emissivemap_fragment>
+
+        // accumulation
+        reflectedLight.indirectDiffuse = getAmbientLightIrradiance( ambientLightColor );
+
+        #include <lightmap_fragment>
+
+        reflectedLight.indirectDiffuse *= BRDF_Diffuse_Lambert( diffuseColor.rgb );
+
+        #ifdef DOUBLE_SIDED
+
+            reflectedLight.directDiffuse = ( gl_FrontFacing ) ? vLightFront : vLightBack;
+
+        #else
+
+            reflectedLight.directDiffuse = vLightFront;
+
+        #endif
+
+        reflectedLight.directDiffuse *= BRDF_Diffuse_Lambert( diffuseColor.rgb ) * getShadowMask();
+
+        // modulation
+        #include <aomap_fragment>
+
+        vec3 outgoingLight = reflectedLight.directDiffuse + reflectedLight.indirectDiffuse + totalEmissiveRadiance;
+
+        #include <normal_flip>
+        #include <envmap_fragment>
+
+        if ( !gl_FrontFacing ) {
+            gl_FragColor = vec4( outgoingLight, diffuseColor.a );
+        } else {
+            gl_FragColor = diffuseColor;
+        }
+
+        #include <premultiplied_alpha_fragment>
+        #include <tonemapping_fragment>
+        #include <encodings_fragment>
+        #include <fog_fragment>
+
+    }
+
+    </script>
+
+
+    <script>
+        function loadFont() {
+            var loader = new THREE.FontLoader();
+            var fontUrl = "static/crowd/workers/script/data/fonts/helvetiker_regular.typeface.json";
+
+            loader.load(fontUrl, function(response) {
+                font = response;
+            });
+        }
+    </script>
+
+    <script src="static/crowd/workers/script/js/three.js"></script>
+    <script src="static/crowd/workers/script/js/TrackballControls.js"></script>
+    <script src="static/crowd/workers/script/js/Detector.js"></script>
+    <script src="static/crowd/workers/script/js/stats.min.js"></script>
+    <script src="static/crowd/workers/script/js/dat.gui.min.js"></script>
+    <script src="static/crowd/workers/script/js/CustomOrthographicTrackballControls.js"></script>
+    <script src="static/crowd/workers/script/js/Utils.js"></script>
+    <script src="static/crowd/workers/script/js/ImageData.js"></script>
+    <script src="static/crowd/workers/script/js/MarchingCubes.js"></script>
+    <script src="static/crowd/workers/script/js/MeshFiltering.js"></script>
+    <script src="static/crowd/workers/script/js/Drawing.js"></script>
+    <script src="static/crowd/workers/script/js/ColorMap.js"></script>
+    <script src="static/crowd/workers/script/js/CoseGUI.js"></script>
+    <script src="static/crowd/workers/script/js/ScribbleManager.js"></script>
+    <script src="static/crowd/workers/script/js/DelineationAlg.js"></script>
+    <script src="static/crowd/workers/script/js/ift/iftCommon.js"></script>
+    <script src="static/crowd/workers/script/js/ift/iftMemory.js"></script>
+    <script src="static/crowd/workers/script/js/ift/iftAdjacency.js"></script>
+    <script src="static/crowd/workers/script/js/ift/iftImage.js"></script>
+    <script src="static/crowd/workers/script/js/ift/iftMatrix.js"></script>
+    <script src="static/crowd/workers/script/js/ift/iftInterpolation.js"></script>
+    <script src="static/crowd/workers/script/js/ift/iftGQueue.js"></script>
+    <script src="static/crowd/workers/script/js/ift/iftSort.js"></script>
+    <script src="static/crowd/workers/script/js/ift/iftRegion.js"></script>
+    <script src="static/crowd/workers/script/js/ift/iftRepresentation.js"></script>
+    <script src="static/crowd/workers/script/js/ift/iftMathMorph.js"></script>
+    <script src="static/crowd/workers/script/js/ift/iftSet.js"></script>
+    <script src="static/crowd/workers/script/js/ift/iftLabeledSet.js"></script>
+    <script src="static/crowd/workers/script/js/ift/iftBMap.js"></script>
+    <script src="static/crowd/workers/script/js/ift/iftImageForest.js"></script>
+    <script src="static/crowd/workers/script/js/ift/iftSeeds.js"></script>
+    <script src="static/crowd/workers/script/js/ift/iftSegmentation.js"></script>
+    <script src="static/crowd/workers/script/js/Cose3DGlobalVars.js"></script>
+    <script src="static/crowd/workers/script/js/Cose3D.js"></script>
+    <script src="static/crowd/workers/script/js/d3.v4.min.js"></script>
+    <script src="static/crowd/workers/script/js/d3-tip.js"></script>
+    <script src="static/crowd/workers/script/index.js"></script>
+    
+
+
+    <link rel="stylesheet"
+          href="static/common/css/jqui-custom-theme/jquery-ui-1.9.0.custom.min.css">
+
+    <link rel="stylesheet"
+          href="static/crowd/tileui/css/cosegui.css">
+
+    <style>
+        #loadingBlock, #errorBlock, #noAssignmentsBlock, #sessionBlock, .confirmationBlock, #useAuxToolBlock {
+            display: none;
+        }
+
+        #loadingBlock {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.75);
+            position: fixed;
+            bottom: 0;
+            left: 0;
+        }
+
+        #errorBlock, #noAssignmentsBlock {
+            text-align: center;
+        }
+
+        ul {
+            list-style-type: none;
+            padding:0;
+            margin:0
+        }
+
+        li {
+            list-style-type: none;
+        }
+
+    </style>
+
+
+</head>
+
+<body>
+
+<div class="title">
+    <a class="title" href="/">3D Collaborative Segmentation</a>
+</div>
+
+<div class="nav">
+
+
+    Welcome, <a href="/account/password/change/">tvs</a> &bull;
+
+    <a href="/account/logout/">log out</a> &bull;
+
+    <a href="about.html">about</a>
+
+</div>
+
+<div class="strip">
+
+    <div id="loadingBlock">
+        <p>Loading data from server...</p>
+    </div>
+
+    <div id="errorBlock">
+        <p>Could not load data from server... Try again later...</p>
+    </div>
+
+    <div id="noAssignmentsBlock">
+        <p>No assignments available!</p>
+    </div>
+
+    <div id="skipConfirmationBlock" class="confirmationBlock"
+         title="Confirm skip?" data-action="skip">
+        <p>Are you sure you want to skip this assignment?</p>
+    </div>
+
+    <div id="saveConfirmationBlock" class="confirmationBlock"
+         title="Confirm saving?" data-action="save">
+        <p>Are you sure you want to submit this assignment?</p>
+    </div>
+
+
+
+
+
+
+    <div id="useAuxToolBlock">
+        <p>If you select this tool, all manual changes will be undone. Do
+            you still want to select this tool?</p>
+    </div>
+
+
+    <div id="sessionBlock" class="workarea">
+        <div id="workerStats" style="width: 500px; margin-left: 136px; margin-right: auto; padding: 0px 0px 10px 0px;">
+            <ul style="padding: 0px 0px 0px 0px;">
+                <li id="workerScore"></li>
+                <li id="workerRanking"></li>
+            </ul>
+        </div>
+
+        <div class="buttons" sytle="">
+            <center>
+                <div class="button_set transparent">
+                    <div class="icon_button" id="undo" title="Undo">
+                        <img src="static/crowd/tileui/imgs/undo.png">
+                    </div>
+                    <div class="icon_button" id="redo" title="Redo"><img
+                        <img src="static/crowd/tileui/imgs/redo.png">
+                    </div>
+                </div>
+
+                <div class="button_set transparent">
+                    <div class="icon_button icon_button_selected" id="showSegmentation"
+                         title="Click to show/hide canvas tracings">
+                        <img src="static/crowd/tileui/imgs/showStrokes.png">
+                    </div>
+                    <div class="icon_button icon_button_selected" id="showScribbles"
+                         title="Click to show/hide smart tool scribbles">
+                        <img src="static/crowd/tileui/imgs/showScribbles.png">
+                    </div>
+                </div>
+
+                <div class="button_set transparent">
+                    <div class="icon_button" id="view3DBorder"
+                         title="3D border visualization">
+                        <img src="static/crowd/tileui/imgs/view3DBorder.png">
+                    </div>
+                    <div class="icon_button" id="view3DMeshes"
+                         title="3D mesh visualization">
+                        <img src="static/crowd/tileui/imgs/view3DMeshes.png">
+                    </div>
+                    <div class="icon_button" id="view2DBorder"
+                         title="2D border visualization">
+                        <img src="static/crowd/tileui/imgs/view2DBorder.png">
+                    </div>
+                    <div class="icon_button" id="view2DLabel"
+                         title="2D label visualization">
+                        <img src="static/crowd/tileui/imgs/view2DLabel.png">
+                    </div>
+                </div>
+                <div class="button_set transparent">
+                    <div class="icon_button" id="fixateClippingPlane"
+                         title="Fixate clipping plane">
+                        <img src="static/crowd/tileui/imgs/clipping-plane.png">
+                    </div>
+                    <div class="icon_button" id="setClippingPlaneXY"
+                         title="Set clipping plane as XY">
+                        <img id="setClippingPlaneXYImg" src="static/crowd/tileui/imgs/clipping-plane-xy.png">
+                    </div>
+                    <div class="icon_button" id="setClippingPlaneZX"
+                         title="Set clipping plane as ZX">
+                        <img src="static/crowd/tileui/imgs/clipping-plane-zx.png">
+                    </div>
+                    <div class="icon_button" id="setClippingPlaneYZ"
+                         title="Set clipping plane as YZ">
+                        <img src="static/crowd/tileui/imgs/clipping-plane-yz.png">
+                    </div>
+                </div>
+
+                <div class="button_set transparent">
+                    <div class="icon_button" id="selectAddTool"
+                         title="Add tool">
+                        <img src="static/crowd/tileui/imgs/selectAddTool.png">
+                    </div>
+                    <div class="icon_button" id="selectExtendTool"
+                         title="Extend tool">
+                        <img src="static/crowd/tileui/imgs/selectExtendTool.png">
+                    </div>
+                </div>
+
+
+                <div class="button_set transparent">
+                    <div class="icon_button" id="selectSplitTool"
+                         title="Split tool">
+                        <img src="static/crowd/tileui/imgs/selectSplitTool.png">
+                    </div>
+                    <div class="icon_button" id="selectMergeTool"
+                         title="Merge tool">
+                        <img src="static/crowd/tileui/imgs/selectMergeTool.png">
+                    </div>
+                </div>
+
+                <div class="button_set transparent">
+                    <div id="selectDelTool" class="icon_button" title="Erase mode">
+                        <img src="static/crowd/tileui/imgs/eraseMode.png">
+                    </div>
+                    <div id="clearSegmentation" class="icon_button"
+                         title="Clear segmentation">
+                        <img src="static/crowd/tileui/imgs/clearEditor.png">
+                    </div>
+                </div>
+
+
+                <div class="text_button silver"
+                     style="margin-top:10px; border-radius:60px"
+                     id="skipAssignment"
+                     title="Skip when not sure what to do">
+                    <img src="static/crowd/tileui/imgs/skip.png">skip
+                </div>
+
+                <div style="position: absolute; bottom: 0">
+                    <!-- send the last button to bottom of buttons column -->
+                    <div class="text_button_set">
+                        <div class="text_button silver long"
+                             id="saveAssignment"
+                             title="Click to submit current result"><img
+                                src="static/crowd/tileui/imgs/submit.png">done
+                        </div>
+                    </div>
+                </div>
+
+            </center>
+        </div>
+
+        <div class="canvas" id="container"> </div>
+        <div class="canvas" id="grid2d"> </div>
+<!--
+        <script>
+        window.onload = function() {
+			all_imgs = [];
+			for ( var i = 0; i <= 59; i++ ) {
+					var imgurl = "";
+				var preurl = "";
+				if (i < 10){ 
+					imgurl = 'slices/raw_000' + i + '.jpg'; 
+					preurl = 'slices/pre_000' + i + '.jpg';}
+				else { 
+					imgurl = 'slices/raw_00' + i + '.jpg';
+					preurl = 'slices/pre_00' + i + '.jpg';}
+
+				make_base(imgurl);
+
+				function make_base(imgurl) {
+						base_image = new Image();
+						base_image.src =  imgurl;
+						var x = (i- (Math.floor(i/6)*6)) * 65;
+						var y = Math.floor(i/6) * 75;
+
+						base_image.onload = function(){
+							all_imgs.push(base_image);
+						}
+					}
+				}// end for loop
+			//console.log(all_imgs)
+			window.setTimeout(drawImages, 500);
+
+			var canvas = d3.select("#grid2d").append("canvas")
+				.attr("id", "grid2d")
+				.attr("width",  500)
+				.attr("height", 800);
+
+			console.log(canvas, canvas.node)
+			var context = canvas.node.getContext("2d");
+			context.fillStyle =("white");
+
+			context.font = "10px Effra";
+			context.textAlign = "start";
+			context.textBaseline = "hanging";
+
+			function drawImages() {
+				for ( var i = 0; i <= 59; i++ ) {
+					var imgurl = "";
+					var preurl = "";
+					if (i < 10){ 
+						imgurl = 'slices/raw_000' + i + '.jpg'; 
+						preurl = 'slices/pre_000' + i + '.jpg';}
+					else { 
+						imgurl = 'slices/raw_00' + i + '.jpg';
+						preurl = 'slices/pre_00' + i + '.jpg';}
+
+				make_base(imgurl);
+
+				var color = d3.scaleLinear()
+							.domain([0, .5, 1])
+							.range(["#a50026","#d9ef8b","#006837"]);
+
+				function hexToRgb(hex) {
+				    var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+				    return result ? {
+				        r: parseInt(result[1], 16),
+				        g: parseInt(result[2], 16),
+				        b: parseInt(result[3], 16)
+				    } : null;
+				}
+
+				//alert( hexToRgb("#0033ff").g ); // "51";
+
+				function make_base(imgurl) {
+						base_image = new Image();
+						base_image.src =  imgurl;
+						var x = (i- (Math.floor(i/6)*6)) * 65;
+						var y = Math.floor(i/6) * 75;
+
+						//base_image.onload = function(){
+							context.drawImage(base_image, x, y, 60, 60 )
+
+							var imgData = context.getImageData(x, y, x+59, y+59);
+							var allcolors = [];
+
+		                for (var k=0;k<imgData.data.length;k+=4){
+
+		                	var rgb_str = "(" + imgData.data[k] + "," + imgData.data[k+1] + "," + imgData.data[k+2] + ")";
+							if (allcolors.indexOf(rgb_str) == -1){
+							  	allcolors.push(rgb_str)
+							}
+
+						}
+						allcolors.sort();
+						//console.log(allcolors); //FOR THE DEMO. Shows how many colors and which ones are in each pixel
+
+						for (var k=0;k<imgData.data.length;k+=4){
+								var m = 30;
+								//var c = d3.color();
+								//console.log(d3.color(color(imgData.data[k]/255)))
+								if (imgData.data[k] > (m+5) && imgData.data[k] < (m+10)){
+							  		imgData.data[k]= 255; //red
+							  		imgData.data[k+1]= 195; 
+							    	imgData.data[k+2]= 0; 
+							    } else if (imgData.data[k] > m && imgData.data[k] <= (m+5)) {
+							  		imgData.data[k]= 255; //red
+							  		imgData.data[k+1]= 87; 
+							    	imgData.data[k+2]= 51; 
+							    } else if (imgData.data[k] <= m && imgData.data[k] <= (m-5)){
+							    	imgData.data[k]= 199; //red
+							  		imgData.data[k+1]= 0; 
+							    	imgData.data[k+2]= 255;
+							    }
+							  	//imgData.data[k+1]= imgData.data[k+1]; //green
+							  	//imgData.data[k+2]= imgData.data[k+2]; //blue
+							  /*else {
+							  	imgData.data[k]=255-imgData.data[k]; //red
+							  	imgData.data[k+1]=255-imgData.data[k+1]; //green
+							  	imgData.data[k+2]=255-imgData.data[k+2]; //blue
+							  //imgData.data[k+3]= 255-imgData.data[k+3];
+							  }*/
+							  
+						}
+
+						context.putImageData(imgData, x, y);	
+						}
+					
+
+
+				}// end for loop
+			} // end of drawImages
+
+		}
+        </script>
+-->
+
+    </div>
+
+
+</div>
+
+<script src="static/crowd/workers/script/js/Interface2D.js"></script>
+
+<p style="margin-left: 10px">&copy; <a href="http://www.cambia.caltech.edu/">Center for Advanced Methods
+    in Biological Image Analysis</a> &bull;
+    <a href="http://www.caltech.edu/">California Institute of Technology</a></p>
+
+
+</body>
+
+</html>

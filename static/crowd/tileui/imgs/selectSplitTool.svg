@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="9.0311184mm"
+   height="9.0310106mm"
+   viewBox="0 0 32.000027 31.999641"
+   id="svg2"
+   version="1.1"
+   inkscape:version="0.91 r13725"
+   sodipodi:docname="selectSplitTool.svg"
+   inkscape:export-filename="/Users/tvspina/liv/svn/caltech-planta/trunk/src/cose3d/static/crowd/tileui/imgs/selectSplitTool.png"
+   inkscape:export-xdpi="90"
+   inkscape:export-ydpi="90">
+  <defs
+     id="defs4" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="5.6"
+     inkscape:cx="-30.400773"
+     inkscape:cy="48.583009"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     fit-margin-top="0"
+     fit-margin-left="0"
+     fit-margin-right="0"
+     fit-margin-bottom="0"
+     inkscape:window-width="1680"
+     inkscape:window-height="1001"
+     inkscape:window-x="0"
+     inkscape:window-y="1"
+     inkscape:window-maximized="1" />
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-133.56344,-319.42368)">
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#ff0000;stroke-width:5;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:3.07500005;stroke-dasharray:none;stroke-opacity:1"
+       d="m 150.87552,350.02274 c 3.21368,-1.35835 6.75232,-1.61534 9.64098,-4.07508 1.76933,-1.39509 2.67206,-3.56114 3.3581,-6.82858 1.11766,-4.54882 -0.9383,-9.81196 -3.8287,-12.70873 -2.34535,-3.34437 -6.8572,-3.60488 -10.61077,-3.09445 l -8.19312,3.10742 -5.35714,4.46429 c -0.11905,4.58333 -0.2381,9.16666 -0.35715,13.75 3.50879,3.75932 9.69616,5.01865 15.3478,5.38513 z"
+       id="path4138"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="ccccccccc" />
+    <path
+       style="fill:#ffff00;fill-rule:evenodd;stroke:#ffff00;stroke-width:5;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;stroke-miterlimit:3.07500005;stroke-dasharray:none"
+       d="m 141.06344,335.3519 2.14286,8.21428"
+       id="path4220"
+       inkscape:connector-curvature="0" />
+    <path
+       style="fill:#ffff00;fill-rule:evenodd;stroke:#ffff00;stroke-width:5;stroke-linecap:butt;stroke-linejoin:round;stroke-opacity:1;stroke-miterlimit:3.07500005;stroke-dasharray:none"
+       d="m 154.99201,331.42332 3.21429,8.75"
+       id="path4222"
+       inkscape:connector-curvature="0" />
+    <path
+       style="fill:#00ff00;fill-rule:evenodd;stroke:#ff1f00;stroke-width:3;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;stroke-miterlimit:3.07500005;stroke-dasharray:3,3;stroke-dashoffset:0"
+       d="m 144.63487,326.60189 8.75,20.89286"
+       id="path4224"
+       inkscape:connector-curvature="0" />
+  </g>
+</svg>

@@ -1,0 +1,5 @@
+{
+  "images": [{"key" : "image04_bb","filename": "data/image04_bb.raw", "label": "data/image04_gt_bb.raw", "xsize" : 64, "ysize" : 64, "zsize" : 64, "border": 0},
+    {"key" : "tile_00417","filename": "data/tile_00417.raw", "label": "data/tile_pre_seg_00417.raw", "xsize" : 60, "ysize" : 60, "zsize" : 60, "border": 0},
+    {"key" : "tile_00444","filename": "data/tile_00444.raw", "label": "data/tile_pre_seg_00444.raw", "xsize" : 60, "ysize" : 60, "zsize" : 60, "border": 0}]
+}
