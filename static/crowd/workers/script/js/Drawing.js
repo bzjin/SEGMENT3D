@@ -289,14 +289,21 @@ function createScribbleGeometry(points, radius, plane, append_single_endpoint) {
     if(points.length < 1)
         return null;
     
-    var zp = points[0].z;
-    var xp = points[0].x;
-    var yp = points[0].y;
+    var zp = points[0].z * 10;
+    var xp = points[0].x * 10;
+    var yp = points[0].y * 10;
 
-    var slicen = +Math.floor(zp + (zp+4/8)*60 - 1);
-    var slicex = +Math.floor(xp + (xp+4/8)*350);
-    var slicey = +Math.floor(yp + (yp+4/8)*350);
+    var row = 8; 
 
+    console.log(zp, xp, yp);
+    var slicen = +Math.floor(((zp+5)/10)*60 - 1);
+    var slicex = +(xp+5)/10*85;
+    var slicey = +(yp+5)/10*85;
+    console.log(slicen, slicex, slicey)
+
+    var x0 = (slicen- (Math.floor(slicen/row)*row)) * 90;
+    var y0 = Math.floor(slicen/row) * 90;
+    /*
     var currentSlice = new Image();
     var thisurl = "";
     if (slicen < 10){ 
@@ -305,14 +312,15 @@ function createScribbleGeometry(points, radius, plane, append_single_endpoint) {
         thisurl = 'slices/raw_00' + slicen + '.jpg';}
 
     currentSlice.src =  thisurl;
-
+    
     //base_image.onload = function(){
     context.drawImage(currentSlice, 0, 0, 350, 350 );
+    */
     //How to translate 3D vector point (distance from origin) to slice???
     
     context.fillStyle = "yellow";
     context.beginPath();
-    context.arc(slicex, slicey, 5, 0,  2 * Math.PI, true);               
+    context.arc(slicex + x0, slicey + y0, 3, 0,  2 * Math.PI, true);               
     context.fill();
     context.closePath();
 
@@ -414,98 +422,3 @@ function createScribbleGeometry(points, radius, plane, append_single_endpoint) {
     return buf_geometry;
 }
 
-
-// function createScribbleGeometry(points, radius, plane, meshes) {
-//     var geometry = null;
-//     var ntriangles = 8;
-//     var add_last_circle = false;
-//     var sphereGeometry;
-//     var cylinderGeometry;
-//
-//     if(points.length < 1)
-//         return null;
-//
-//     if(points.length === 1) {
-//         sphereGeometry = new THREE.SphereGeometry(radius, ntriangles, ntriangles);
-//         sphereGeometry.translate(points[0].x, points[0].y, points[0].z);
-//
-//         geometry.merge(sphereGeometry);
-//     } else {
-//         if(meshes.length > 0)
-//             geometry = meshes[meshes.length-1].geometry;
-//
-//         for (var i = 0; i < points.length - 1; i++) {
-//             var p0 = points[i];
-//             var p1 = points[i + 1];
-//
-//             // Half-radius intersection between spheres is allowed, before recurring to drawing cylinders
-//             // if (p0.distanceTo(p1) >= radius*0.1) {
-//             //     cylinderGeometry = createCylinderGivenEndpoints(p0, p1, radius, ntriangles, true);
-//             //
-//             //     if(geometry !== null) {
-//             //         console.time('CSG');
-//             //         var cylinder_bsp = new ThreeBSP( cylinderGeometry );
-//             //
-//             //         var geometry_bsp = new ThreeBSP( geometry );
-//             //
-//             //         var union_bsp = cylinder_bsp.union( geometry_bsp );
-//             //
-//             //         geometry = union_bsp.toGeometry();
-//             //
-//             //         console.timeEnd('CSG');
-//             //     } else {
-//             //         geometry = cylinderGeometry;
-//             //     }
-//             //
-//             // } else {
-//                 sphereGeometry = new THREE.SphereGeometry(radius, ntriangles, ntriangles);
-//                 sphereGeometry.translate(p0.x, p0.y, p0.z);
-//
-//                 if(geometry !== null) {
-//
-//                     var sphere_bsp = new ThreeBSP(sphereGeometry);
-//
-//                     var geometry_bsp = new ThreeBSP(geometry);
-//
-//                     var union_bsp = sphere_bsp.union(geometry_bsp);
-//
-//                     geometry = union_bsp.toGeometry();
-//                 } else {
-//
-//                     console.log('here', sphereGeometry);
-//                     geometry = sphereGeometry;
-//                 }
-//             // }
-//         }
-//
-//         // // Adding one sphere at either end of the scribble
-//         if (!iftVoxelsAreEqual(points[0], points[points.length-1])) {
-//             sphereGeometry = new THREE.SphereGeometry(radius, ntriangles, ntriangles);
-//             sphereGeometry.translate(points[0].x, points[0].y, points[0].z);
-//
-//             var sphere_bsp0 = new ThreeBSP( sphereGeometry );
-//
-//             sphereGeometry = new THREE.SphereGeometry(radius, ntriangles, ntriangles);
-//             sphereGeometry.translate(points[points.length - 1].x, points[points.length - 1].y, points[points.length - 1].z);
-//
-//             var sphere_bsp1 = new ThreeBSP( sphereGeometry );
-//
-//             var geometry_bsp = new ThreeBSP( geometry );
-//
-//             var union_bsp = sphere_bsp0.union( geometry_bsp );
-//             var union_bsp = sphere_bsp1.union(union_bsp);
-//
-//             geometry = union_bsp.toGeometry();
-//         }
-//     }
-//
-//     geometry.computeBoundingBox();
-//
-//     // var buf_geometry = new THREE.BufferGeometry().fromGeometry(geometry);
-//     //
-//     // buf_geometry.computeBoundingBox();
-//     //
-//     // return buf_geometry;
-//
-//     return geometry;
-// }

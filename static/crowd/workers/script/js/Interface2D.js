@@ -24,11 +24,11 @@ window.onload = function() {
 			}
 		}// end for loop
 	//console.log(all_imgs)
-	window.setTimeout(drawImages, 1000);
+	window.setTimeout(drawImages, 1500);
 
 	var canvas = d3.select("#grid2d").append("canvas")
 		.attr("id", "grid2d")
-		.attr("width",  500)
+		.attr("width",  750)
 		.attr("height", 800);
 
 	context = canvas.node().getContext("2d");
@@ -39,7 +39,7 @@ window.onload = function() {
 	context.textBaseline = "hanging";
 
 	function drawImages() {
-		for ( var i = 0; i <= 19; i++ ) {
+		for ( var i = 0; i <= 59; i++ ) {
 			var imgurl = "";
 			var preurl = "";
 			if (i < 10){ 
@@ -67,9 +67,9 @@ window.onload = function() {
 		//alert( hexToRgb("#0033ff").g ); // "51";
 
 		function make_base(imgurl) {
-			    var dim = 100;
-			    var pad = 105;
-			    var n = 6;
+			    var dim = 85;
+			    var pad = 90;
+			    var n = 8;
 				base_image = new Image();
 				base_image.src =  imgurl;
 				var x = (i- (Math.floor(i/n)*n)) * pad;

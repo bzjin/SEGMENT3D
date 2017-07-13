@@ -62,7 +62,7 @@ var default_meshphong_frag			= THREE.ShaderChunk.meshphong_frag;
 var default_meshlambert_frag		= THREE.ShaderChunk.meshlambert_frag;
 
 var optimize_for_mobile             = false;
-var show_advanced_GUI_controls      = false;
+var show_advanced_GUI_controls      = true;
 
 // Colormaps used to paint labels/scribbles
 const colorMap1024 = new ColorMap1024();
