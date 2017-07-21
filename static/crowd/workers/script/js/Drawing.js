@@ -295,11 +295,11 @@ function createScribbleGeometry(points, radius, plane, append_single_endpoint) {
 
     var row = 8; 
 
-    console.log(zp, xp, yp);
+    //console.log(zp, xp, yp);
     var slicen = +Math.floor(((zp+5)/10)*60 - 1);
     var slicex = +(xp+5)/10*85;
     var slicey = +(yp+5)/10*85;
-    console.log(slicen, slicex, slicey)
+    //console.log(slicen, slicex, slicey)
 
     var x0 = (slicen- (Math.floor(slicen/row)*row)) * 90;
     var y0 = Math.floor(slicen/row) * 90;

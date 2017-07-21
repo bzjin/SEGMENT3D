@@ -29,8 +29,10 @@ body {
   background-color: rgb(145,180,210);
   /*background-color: rgb(0,0,0);*/
   margin: auto;
-    background-image: url(../imgs/cose-logo-white-transparent.png);
+    /*background-image: url(../imgs/alicebg.jpg);*/
     background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
     font-weight: 400;
     color: #444;
 //  height: 100%;

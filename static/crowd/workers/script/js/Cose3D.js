@@ -61,7 +61,7 @@ function GUIParams(firstSelectedImage) {
     this.viewPlane 					= XY_PLANE;
 
     // Default visualization is the 3D border mesh
-    this.overlay 					= BORDER_MESH_OVERLAY;
+    this.overlay 					= BORDER_OVERLAY;
     this.setSelectedLabels([BORDER_LABEL_ID]);
 
     // Buttons
@@ -742,7 +742,11 @@ function determineModifiedLabels(old_label, new_label) {
     return mod_labels;
 }
 
-function delineate() {
+function delineate() { //calls the iftDiffWatershed/iftWatershed function 
+    //I mentioned in the meeting. You can call "delineate" with a set of 
+    //3D seeds for delineation, as discussed during the meeting, to observe
+    // the result in 3D, instead of using iftWatershed and trying to render it 
+    //yourself.
     if(scribbleManager !== null) {
         var res = scribbleManager.scribblesToSeeds(delineationAlg.checkpoint, IFT_INFINITY_INT);
         var seeds = res.seeds, remSeeds;
