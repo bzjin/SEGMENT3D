@@ -411,7 +411,6 @@ function loadLabelFile(arrayBuffer, parameters) {
     console.log("currentImage.label", currentImage.label);
     var res 		    = selectLabels(currentImage.label, DISPLAY_ALL_LABEL_MESHES, A);
     var selectedLabels 	= res.selectedLabels;
-    console.log(selectedLabels);
     //Updating the textures and meshes for display
     coseGUI.computeLabelTexturesAndMeshes(currentImage, delineationAlg.fst.A, guiParams.labelEroRadius,
         selectedLabels, null);

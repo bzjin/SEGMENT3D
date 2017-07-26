@@ -289,37 +289,20 @@ function createScribbleGeometry(points, radius, plane, append_single_endpoint) {
     if(points.length < 1)
         return null;
     
-    var zp = points[0].z * 10;
+    zp = points[0].z * 10;
     var xp = points[0].x * 10;
     var yp = points[0].y * 10;
 
+   // console.log(meshLabels)
+
     //console.log(zp, xp, yp);
-    var slicen = +Math.floor(((zp+5)/10)*60 - 1);
+    slicen = +Math.floor(((zp+5)/10)*60 - 1);
+    console.log(slicen);
     var slicex = +(xp+5) * 30;
     var slicey = +(yp+5) * 30;
     //console.log(slicen, slicex, slicey)
-    /*
-    var currentSlice = new Image();
-    var thisurl = "";
-    if (slicen < 10){ 
-        thisurl = 'slices/raw_000' + slicen + '.jpg';}
-    else { 
-        thisurl = 'slices/raw_00' + slicen + '.jpg';}
 
-    currentSlice.src =  thisurl;
-    
-    //base_image.onload = function(){
-    context.drawImage(currentSlice, 0, 0, 350, 350 );
-    */
-    //How to translate 3D vector point (distance from origin) to slice???
-    
-    context.fillStyle = "rgba(255,100,100," + slicen/50 + ")";
-    context.beginPath();
-    context.arc(400 + slicex, 100 + slicey, Math.sqrt(slicen), 0,  2 * Math.PI, true);               
-    context.fill();
-    context.closePath();
-
-    context.fillStyle = "rgba(255,255,0," + slicey/300 + ")";
+    context.fillStyle = "rgba(255,255,0, 1)";
     context.beginPath();
     context.arc(50 + slicex, slicen/60*300 + 100, Math.sqrt(slicey/5), 0,  2 * Math.PI, true);               
     context.fill();

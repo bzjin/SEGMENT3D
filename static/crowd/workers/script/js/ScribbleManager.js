@@ -518,6 +518,14 @@ ScribbleManager.prototype.clearScribbleCollection = function(scene) {
             this.scribble_collection[i].clearMeshes(scene);
         }
     }
+
+    context.clearRect(0, 0, 750, 800);
+    context.font = "10px Effra";
+    context.textAlign = "start";
+    context.textBaseline = "hanging";
+
+    context.fillStyle = 'black';
+    context.fillRect(50, 100, 300, 300);
 };
 
 ScribbleManager.prototype.clearScribblesSelectedForRemoval = function(scene) {
@@ -1088,6 +1096,7 @@ ScribbleManager.prototype.addSribbleMeshesToScene = function (scene) {
         var lb      = this.scribble_collection[i].label;
         var color   = this.__colormap.getColor(lb);
         this.scribble_collection[i].addMeshesToScene(scene, color);
+        console.log(scribble_collection[i]);
     }
 };
 

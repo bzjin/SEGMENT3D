@@ -1079,6 +1079,8 @@ CoseGUI.prototype.updateLabelMeshes = function() {
 
         updateLabelMesh(this.meshLabels[i], this.clippingPlane, this.clippingPlaneDir, visible, color);
     }
+    //console.log(this.meshLabels);
+
 };
 
 
