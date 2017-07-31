@@ -515,17 +515,18 @@ ScribbleManager.prototype.clearHandler = function(scene) {
 ScribbleManager.prototype.clearScribbleCollection = function(scene) {
     if(scene !== null) {
         for (var i = 0; i < this.scribble_collection.length; i++) {
+            //console.log(this.scribble_collection)
             this.scribble_collection[i].clearMeshes(scene);
         }
     }
 
-    context.clearRect(0, 0, 750, 800);
+    context.clearRect(0, 100, 300, 350);
     context.font = "10px Effra";
     context.textAlign = "start";
     context.textBaseline = "hanging";
 
     context.fillStyle = 'black';
-    context.fillRect(50, 100, 300, 300);
+    context.fillRect(50, 125, 250, 250);
 };
 
 ScribbleManager.prototype.clearScribblesSelectedForRemoval = function(scene) {

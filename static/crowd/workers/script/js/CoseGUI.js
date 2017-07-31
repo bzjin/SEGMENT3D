@@ -1149,7 +1149,8 @@ CoseGUI.prototype.updateClippingPlane = function(boxDiagSize) {
 
     // Computing the distance between planes
     var d =  plane_at_origin.distanceToPoint(point_on_plane_at_camera_focus);
-
+    globalD = d;
+    //console.log(d);
     this.clippingPlane = new THREE.Plane(this.clippingPlane.normal.clone(), d);
 };
 

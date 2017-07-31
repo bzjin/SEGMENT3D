@@ -11,7 +11,7 @@ var Detector = {
 		try {
 
 			var canvas = document.createElement( 'canvas' ); return !! ( window.WebGLRenderingContext && ( canvas.getContext( 'webgl' ) || canvas.getContext( 'experimental-webgl' ) ) );
-
+			canvas.id = "model3d";
 		} catch ( e ) {
 
 			return false;

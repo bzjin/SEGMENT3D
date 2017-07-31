@@ -17,14 +17,8 @@ div.canvas {
     /*position: absolute;*/
     width: 450px;
     height: 500px;
-    margin-left: 128px;
+    margin-left: 10px;
     margin-right: auto;
-    border-style: solid;
-    border-width: 8px;
-    border-color: #fff;
-    border-radius: 8px;
-    -moz-border-radius: 8px;
-    -webkit-border-radius: 8px;
 }
 
 /*div.canvas img {*/
@@ -44,7 +38,9 @@ div.canvas {
 
 .buttons {                                      /* root div to place buttons */
     display: inline-block;
-    position: relative;
+    position: absolute;
+    bottom: -100px;
+    left: 100px;
     background: transparent;
     margin-left: auto;
     margin-right: auto;
@@ -52,8 +48,8 @@ div.canvas {
     border-style: solid;
     border-width: 0px;
     border-color: blue;
-    width: 120px;
-    height: 516px;                                /* same height of canvas + border */
+    width: 500px;
+    height: 120px;                                /* same height of canvas + border */
     vertical-align: middle;
     overflow: hidden;
     float: left;
@@ -143,12 +139,10 @@ div.canvas {
 }
 
 .icon_button:hover {
-    background-color: rgba(145,180,210, 0.75);
     border-color: #fff;
 }
 
 .icon_button_selected {
-    background-color: rgba(145,180,210, 0.75);
     border-color: #666;
 }
 
@@ -230,13 +224,32 @@ img.large {
   width: 64px;
 }
 
-div#grid2d {
+div#grid2d{
     margin-top: 10px;
     height: 500px;
-    width: 750px;
+    width: 400px;
     float: right;
     position: absolute;
     top:0px;
-    margin-left: 600px;
+    margin-left: 400px;
+}
+
+canvas#keycanvas {
+    position: absolute;
+    z-index: 999 !important;
+}
+
+div#container {
+    z-index: 1 !important;
+}
+
+div#fashionshow, div#minimap  {
+    margin-top: 10px;
+    height: 300px;
+    width: 400px;
+    float: right;
+    position: absolute;
+    top:0px;
+    margin-left: 800px;
 }
 

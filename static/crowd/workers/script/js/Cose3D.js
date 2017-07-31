@@ -37,7 +37,7 @@ function GUIParams(firstSelectedImage) {
 
 
     this.planeDist 					= 0.0;
-    this.fixateClippingPlane 		= true;
+    this.fixateClippingPlane 		= false;
 
     this.setGrayscaleTransfColors();
 

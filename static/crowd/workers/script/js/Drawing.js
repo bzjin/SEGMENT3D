@@ -293,20 +293,20 @@ function createScribbleGeometry(points, radius, plane, append_single_endpoint) {
     var xp = points[0].x * 10;
     var yp = points[0].y * 10;
 
-   // console.log(meshLabels)
-
     //console.log(zp, xp, yp);
     slicen = +Math.floor(((zp+5)/10)*60 - 1);
-    console.log(slicen);
-    var slicex = +(xp+5) * 30;
-    var slicey = +(yp+5) * 30;
+    //console.log(slicen);
+    var slicex = +(xp+5) * 25;
+    var slicey = +(yp+5) * 25;
     //console.log(slicen, slicex, slicey)
 
     context.fillStyle = "rgba(255,255,0, 1)";
     context.beginPath();
-    context.arc(50 + slicex, slicen/60*300 + 100, Math.sqrt(slicey/5), 0,  2 * Math.PI, true);               
+    context.arc(50 + slicex, slicen/60*250 + 125, Math.sqrt(slicey/5), 0,  2 * Math.PI, true);               
     context.fill();
     context.closePath();
+
+    coseGUI.changeOrthogonalCameraView(XY_PLANE);
 
     if(points.length === 1) {
         if(plane !== undefined && plane !== null) {

@@ -653,12 +653,7 @@
 <div class="nav">
 
 
-    Welcome, <a href="/account/password/change/">tvs</a> &bull;
-
-    <a href="/account/logout/">log out</a> &bull;
-
-    <a href="about.html">about</a>
-
+    
 </div>
 
 <div class="strip">
@@ -726,11 +721,13 @@
                     </div>
                 </div>
 
+
                 <div class="button_set transparent">
+                <!--
                     <div class="icon_button" id="view3DBorder"
                          title="3D border visualization">
                         <img src="static/crowd/tileui/imgs/view3DBorder.png">
-                    </div>
+                    </div>-->
                     <div class="icon_button" id="view3DMeshes"
                          title="3D mesh visualization">
                         <img src="static/crowd/tileui/imgs/view3DMeshes.png">
@@ -739,11 +736,13 @@
                          title="2D border visualization">
                         <img src="static/crowd/tileui/imgs/view2DBorder.png">
                     </div>
+                    <!--
                     <div class="icon_button" id="view2DLabel"
                          title="2D label visualization">
                         <img src="static/crowd/tileui/imgs/view2DLabel.png">
-                    </div>
+                    </div>-->
                 </div>
+                <!--
                 <div class="button_set transparent">
                     <div class="icon_button" id="fixateClippingPlane"
                          title="Fixate clipping plane">
@@ -762,7 +761,7 @@
                         <img src="static/crowd/tileui/imgs/clipping-plane-yz.png">
                     </div>
                 </div>
-
+				-->
                 <div class="button_set transparent">
                     <div class="icon_button" id="selectAddTool"
                          title="Add tool">
@@ -798,21 +797,17 @@
 
 
                 <div class="text_button silver"
-                     style="margin-top:10px; border-radius:60px"
+                     style=""
                      id="skipAssignment"
                      title="Skip when not sure what to do">
                     <img src="static/crowd/tileui/imgs/skip.png">skip
                 </div>
 
-                <div style="position: absolute; bottom: 0">
                     <!-- send the last button to bottom of buttons column -->
-                    <div class="text_button_set">
-                        <div class="text_button silver long"
-                             id="saveAssignment"
-                             title="Click to submit current result"><img
-                                src="static/crowd/tileui/imgs/submit.png">done
-                        </div>
-                    </div>
+                <div class="text_button silver"
+                     id="saveAssignment"
+                     title="Click to submit current result"><img
+                        src="static/crowd/tileui/imgs/submit.png">done
                 </div>
 
             </center>
@@ -820,139 +815,8 @@
 
         <div class="canvas" id="container"> </div>
         <div class="canvas" id="grid2d"> </div>
-<!--
-        <script>
-        window.onload = function() {
-			all_imgs = [];
-			for ( var i = 0; i <= 59; i++ ) {
-					var imgurl = "";
-				var preurl = "";
-				if (i < 10){ 
-					imgurl = 'slices/raw_000' + i + '.jpg'; 
-					preurl = 'slices/pre_000' + i + '.jpg';}
-				else { 
-					imgurl = 'slices/raw_00' + i + '.jpg';
-					preurl = 'slices/pre_00' + i + '.jpg';}
-
-				make_base(imgurl);
-
-				function make_base(imgurl) {
-						base_image = new Image();
-						base_image.src =  imgurl;
-						var x = (i- (Math.floor(i/6)*6)) * 65;
-						var y = Math.floor(i/6) * 75;
-
-						base_image.onload = function(){
-							all_imgs.push(base_image);
-						}
-					}
-				}// end for loop
-			//console.log(all_imgs)
-			window.setTimeout(drawImages, 500);
-
-			var canvas = d3.select("#grid2d").append("canvas")
-				.attr("id", "grid2d")
-				.attr("width",  500)
-				.attr("height", 800);
-
-			console.log(canvas, canvas.node)
-			var context = canvas.node.getContext("2d");
-			context.fillStyle =("white");
-
-			context.font = "10px Effra";
-			context.textAlign = "start";
-			context.textBaseline = "hanging";
-
-			function drawImages() {
-				for ( var i = 0; i <= 59; i++ ) {
-					var imgurl = "";
-					var preurl = "";
-					if (i < 10){ 
-						imgurl = 'slices/raw_000' + i + '.jpg'; 
-						preurl = 'slices/pre_000' + i + '.jpg';}
-					else { 
-						imgurl = 'slices/raw_00' + i + '.jpg';
-						preurl = 'slices/pre_00' + i + '.jpg';}
-
-				make_base(imgurl);
-
-				var color = d3.scaleLinear()
-							.domain([0, .5, 1])
-							.range(["#a50026","#d9ef8b","#006837"]);
-
-				function hexToRgb(hex) {
-				    var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-				    return result ? {
-				        r: parseInt(result[1], 16),
-				        g: parseInt(result[2], 16),
-				        b: parseInt(result[3], 16)
-				    } : null;
-				}
-
-				//alert( hexToRgb("#0033ff").g ); // "51";
-
-				function make_base(imgurl) {
-						base_image = new Image();
-						base_image.src =  imgurl;
-						var x = (i- (Math.floor(i/6)*6)) * 65;
-						var y = Math.floor(i/6) * 75;
-
-						//base_image.onload = function(){
-							context.drawImage(base_image, x, y, 60, 60 )
-
-							var imgData = context.getImageData(x, y, x+59, y+59);
-							var allcolors = [];
-
-		                for (var k=0;k<imgData.data.length;k+=4){
-
-		                	var rgb_str = "(" + imgData.data[k] + "," + imgData.data[k+1] + "," + imgData.data[k+2] + ")";
-							if (allcolors.indexOf(rgb_str) == -1){
-							  	allcolors.push(rgb_str)
-							}
-
-						}
-						allcolors.sort();
-						//console.log(allcolors); //FOR THE DEMO. Shows how many colors and which ones are in each pixel
-
-						for (var k=0;k<imgData.data.length;k+=4){
-								var m = 30;
-								//var c = d3.color();
-								//console.log(d3.color(color(imgData.data[k]/255)))
-								if (imgData.data[k] > (m+5) && imgData.data[k] < (m+10)){
-							  		imgData.data[k]= 255; //red
-							  		imgData.data[k+1]= 195; 
-							    	imgData.data[k+2]= 0; 
-							    } else if (imgData.data[k] > m && imgData.data[k] <= (m+5)) {
-							  		imgData.data[k]= 255; //red
-							  		imgData.data[k+1]= 87; 
-							    	imgData.data[k+2]= 51; 
-							    } else if (imgData.data[k] <= m && imgData.data[k] <= (m-5)){
-							    	imgData.data[k]= 199; //red
-							  		imgData.data[k+1]= 0; 
-							    	imgData.data[k+2]= 255;
-							    }
-							  	//imgData.data[k+1]= imgData.data[k+1]; //green
-							  	//imgData.data[k+2]= imgData.data[k+2]; //blue
-							  /*else {
-							  	imgData.data[k]=255-imgData.data[k]; //red
-							  	imgData.data[k+1]=255-imgData.data[k+1]; //green
-							  	imgData.data[k+2]=255-imgData.data[k+2]; //blue
-							  //imgData.data[k+3]= 255-imgData.data[k+3];
-							  }*/
-							  
-						}
-
-						context.putImageData(imgData, x, y);	
-						}
-					
-
-
-				}// end for loop
-			} // end of drawImages
-
-		}
-        </script>
--->
+        <div class="canvas" id="minimap"> </div>
+        <div class="canvas" id="fashionshow"> </div>
 
     </div>
 
@@ -960,11 +824,11 @@
 </div>
 
 <script src="static/crowd/workers/script/js/Interface2D.js"></script>
-
-<p style="margin-left: 10px">&copy; <a href="http://www.cambia.caltech.edu/">Center for Advanced Methods
+<div id = "footertext">
+<p>&copy; <a href="http://www.cambia.caltech.edu/">Center for Advanced Methods
     in Biological Image Analysis</a> &bull;
     <a href="http://www.caltech.edu/">California Institute of Technology</a></p>
-
+</div>
 
 </body>
 
