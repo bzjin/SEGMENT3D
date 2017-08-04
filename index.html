@@ -3,7 +3,7 @@
 <html lang="en-us">
 
 <head>
-    <title>cose | collaborative segmentation |
+    <title>C3LLFI3 | collaborative segmentation |
         Worker's index</title>
 
     <link rel="stylesheet"
@@ -647,7 +647,16 @@
 <body>
 
 <div class="title">
-    <a class="title" href="/">3D Collaborative Segmentation</a>
+    <a class="atitle" href="/">C3LLFI3</a>
+    <h4 class="subtitle"> Collaborative 3D Image Segmentation </h4>
+    <p class="ptitle">  Each cube is an image of a part of a plant stem cell in its natural 3D form. Your job is to segment each of these images correctly. </p>
+    <p class="ptitle">Instructions: </p>
+    <p class="ptitle">1. Scroll up and down in the <span class="zcolor">z direction</span> to see cell walls.</p>
+    <p class="ptitle">2. Move your mouse back and forth to see cell walls in the <span class="ycolor">y direction</span>.</p>   
+    <p class="ptitle">3. Place "cell centers" where there are no cell walls.</p> 
+    <p class="ptitle">4. Check the resulting 3D meshes. Edit or redo your segmentation if there are any non-convex cells, especially if they have an hourglass shape.</p> 
+    <p class="ptitle">&copy; <a href="http://www.cambia.caltech.edu/">Center for Advanced Methods in Biological Image Analysis</a> &bull;
+    <a href="http://www.caltech.edu/">California Institute of Technology</a></p>
 </div>
 
 <div class="nav">
@@ -699,41 +708,39 @@
             </ul>
         </div>
 
-        <div class="buttons" sytle="">
+        <div class="buttons">
             <center>
                 <div class="button_set transparent">
-                    <div class="icon_button" id="undo" title="Undo">
+                    <div class="icon_button tooltip" id="undo" title="Undo">
+                      	<span class="tooltiptext">Undo</span>
                         <img src="static/crowd/tileui/imgs/undo.png">
                     </div>
-                    <div class="icon_button" id="redo" title="Redo"><img
+
+                    <div class="icon_button tooltip" id="redo" title="Redo">
+                        <span class="tooltiptext">Redo</span>
                         <img src="static/crowd/tileui/imgs/redo.png">
                     </div>
-                </div>
 
-                <div class="button_set transparent">
-                    <div class="icon_button icon_button_selected" id="showSegmentation"
+                    <div class="icon_button icon_button_selected tooltip" id="showSegmentation"
                          title="Click to show/hide canvas tracings">
+                         <span class="tooltiptext">Show segmentation</span>
                         <img src="static/crowd/tileui/imgs/showStrokes.png">
                     </div>
-                    <div class="icon_button icon_button_selected" id="showScribbles"
-                         title="Click to show/hide smart tool scribbles">
-                        <img src="static/crowd/tileui/imgs/showScribbles.png">
-                    </div>
-                </div>
 
-
-                <div class="button_set transparent">
                 <!--
                     <div class="icon_button" id="view3DBorder"
                          title="3D border visualization">
                         <img src="static/crowd/tileui/imgs/view3DBorder.png">
                     </div>-->
-                    <div class="icon_button" id="view3DMeshes"
+                    <div class="icon_button tooltip" id="view3DMeshes"
                          title="3D mesh visualization">
+                       	<span class="tooltiptext">View 3D meshes</span>
                         <img src="static/crowd/tileui/imgs/view3DMeshes.png">
                     </div>
-                    <div class="icon_button" id="view2DBorder"
+
+                    <div class="icon_button tooltip" id="view2DBorder"
                          title="2D border visualization">
+                         <span class="tooltiptext">View 2D borders</span>
                         <img src="static/crowd/tileui/imgs/view2DBorder.png">
                     </div>
                     <!--
@@ -741,7 +748,6 @@
                          title="2D label visualization">
                         <img src="static/crowd/tileui/imgs/view2DLabel.png">
                     </div>-->
-                </div>
                 <!--
                 <div class="button_set transparent">
                     <div class="icon_button" id="fixateClippingPlane"
@@ -762,61 +768,53 @@
                     </div>
                 </div>
 				-->
-                <div class="button_set transparent">
-                    <div class="icon_button" id="selectAddTool"
+                    <div class="icon_button tooltip" id="selectAddTool"
                          title="Add tool">
+                        <span class="tooltiptext">Add cell center</span>
                         <img src="static/crowd/tileui/imgs/selectAddTool.png">
                     </div>
-                    <div class="icon_button" id="selectExtendTool"
-                         title="Extend tool">
-                        <img src="static/crowd/tileui/imgs/selectExtendTool.png">
-                    </div>
-                </div>
-
-
-                <div class="button_set transparent">
-                    <div class="icon_button" id="selectSplitTool"
-                         title="Split tool">
-                        <img src="static/crowd/tileui/imgs/selectSplitTool.png">
-                    </div>
-                    <div class="icon_button" id="selectMergeTool"
-                         title="Merge tool">
-                        <img src="static/crowd/tileui/imgs/selectMergeTool.png">
-                    </div>
-                </div>
-
-                <div class="button_set transparent">
-                    <div id="selectDelTool" class="icon_button" title="Erase mode">
+ 
+                    <div id="selectDelTool" class="icon_button tooltip" title="Erase mode">
+                        <span class="tooltiptext">Erase</span>
                         <img src="static/crowd/tileui/imgs/eraseMode.png">
                     </div>
-                    <div id="clearSegmentation" class="icon_button"
-                         title="Clear segmentation">
-                        <img src="static/crowd/tileui/imgs/clearEditor.png">
-                    </div>
+               
                 </div>
 
 
-                <div class="text_button silver"
-                     style=""
-                     id="skipAssignment"
-                     title="Skip when not sure what to do">
-                    <img src="static/crowd/tileui/imgs/skip.png">skip
-                </div>
-
-                    <!-- send the last button to bottom of buttons column -->
-                <div class="text_button silver"
-                     id="saveAssignment"
-                     title="Click to submit current result"><img
-                        src="static/crowd/tileui/imgs/submit.png">done
-                </div>
+				
 
             </center>
         </div>
 
-        <div class="canvas" id="container"> </div>
-        <div class="canvas" id="grid2d"> </div>
-        <div class="canvas" id="minimap"> </div>
-        <div class="canvas" id="fashionshow"> </div>
+        <div class="buttons2">
+            <center>
+                <div id="clearSegmentation" class="text_button"
+                         title="Clear segmentation">
+                        restart
+                </div>
+
+                <div class="text_button"
+                     style=""
+                     id="skipAssignment"
+                     title="Skip when not sure what to do"> skip
+                </div>
+
+                    <!-- send the last button to bottom of buttons column -->
+                <div class="text_button"
+                     id="saveAssignment"
+                     title="Click to submit current result">submit
+                </div>
+            </center>
+        </div>	
+
+        <div id="allElements">
+	        <div class="canvas" id="container"> </div>
+	        <div class="canvas" id="container2"> </div>
+	        <div class="canvas" id="grid2d"> </div>
+	        <div class="canvas" id="minimap"> </div>
+	        <div class="canvas" id="fashionshow"> </div>
+	    </div>
 
     </div>
 
@@ -824,11 +822,6 @@
 </div>
 
 <script src="static/crowd/workers/script/js/Interface2D.js"></script>
-<div id = "footertext">
-<p>&copy; <a href="http://www.cambia.caltech.edu/">Center for Advanced Methods
-    in Biological Image Analysis</a> &bull;
-    <a href="http://www.caltech.edu/">California Institute of Technology</a></p>
-</div>
 
 </body>
 

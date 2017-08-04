@@ -293,8 +293,8 @@ function createScribbleGeometry(points, radius, plane, append_single_endpoint) {
     var xp = points[0].x * 10;
     var yp = points[0].y * 10;
 
-    //console.log(zp, xp, yp);
-    slicen = +Math.floor(((zp+5)/10)*60 - 1);
+    //console.log(zp);
+    slicen = +Math.floor(((zp+5)/10)*60);
     //console.log(slicen);
     var slicex = +(xp+5) * 25;
     var slicey = +(yp+5) * 25;
@@ -302,7 +302,7 @@ function createScribbleGeometry(points, radius, plane, append_single_endpoint) {
 
     context.fillStyle = "rgba(255,255,0, 1)";
     context.beginPath();
-    context.arc(50 + slicex, slicen/60*250 + 125, Math.sqrt(slicey/5), 0,  2 * Math.PI, true);               
+    context.arc(40 + slicex, slicen/60*250 + 125, Math.sqrt(slicey/5), 0,  2 * Math.PI, true);               
     context.fill();
     context.closePath();
 

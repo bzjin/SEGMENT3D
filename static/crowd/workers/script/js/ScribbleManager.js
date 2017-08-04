@@ -520,12 +520,15 @@ ScribbleManager.prototype.clearScribbleCollection = function(scene) {
         }
     }
 
-    context.clearRect(0, 100, 300, 350);
-    context.font = "10px Effra";
-    context.textAlign = "start";
-    context.textBaseline = "hanging";
+    context.clearRect(0, 100, 306, 350);
 
+    context.lineWidth="5";
+    context.strokeStyle = '#FF0058';
+    context.strokeRect(48, 123, 253, 253);
+
+    context.lineWidth="1";
     context.fillStyle = 'black';
+    context.strokeStyle = 'white';
     context.fillRect(50, 125, 250, 250);
 };
 
