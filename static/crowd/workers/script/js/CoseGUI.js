@@ -1235,18 +1235,30 @@ function changeXZPlane(xPos, yPos, sliceD, sliceMini){
 
     context.drawImage(xzsq, x2, 125, 250, 250);
 
-    /*drawnScribblesY[ySlice].scribbles.forEach(function(d){
-        context.beginPath();
-        context.arc(d.x + 350, d.y, 5, 0, 2 * Math.PI, false);
-        context.fillStyle = 'yellow';
-        context.fill();
-     })*/
-    //console.log(globalD);
-
-    context.fillStyle = '#21A9CC';
-    context.fillRect(xPos + x2, 125, 1, 250); //vertical crosshair
+    //SECOND BOX CROSSHAIR
     context.fillStyle = '#F2B333';
     context.fillRect(x2, sliceD + 125, 250, 1); //horizontal crosshair
+
+    context.fillStyle = '#21A9CC';
+    context.beginPath();
+    context.arc(xPos + x2, sliceD + 125, 5, 2 * Math.PI, false); //travelling dot
+    context.fill(); 
+
+    //FIRST BOX CROSSHAIR
+    context2.clearRect(100, 125, 250, 250);
+    /*context2.lineWidth="50";
+    context2.strokeStyle = 'rgba(255, 255, 255, .3)';
+    context2.strokeRect(125, 150, 200, 200);*/
+/*
+    context2.lineWidth="1";
+    context2.fillStyle = '#21A9CC';
+    context2.fillRect(xPos + x2 + 75, 125, 1, 250); //vertical crosshair
+    context2.fillStyle = '#FF0058';
+    context2.fillRect(x2 + 75, yPos + 125, 250, 1); //horizontal crosshair
+    */
+    context.lineWidth="5";
+    context.strokeStyle = '#FF0058';
+    context.strokeRect(x2-3, 122, 256, 256);
 
     drawCube(120, 225, 80, 100, 100, sliceMini, xPos/250, yPos/250);
 }
@@ -1265,7 +1277,7 @@ function drawCube(x, y, wx, wy, h, slice, xCh, yCh) {
     mapctx.fill();
     mapctx.stroke();
 
-    var y0 = 65;
+    var y0 = 75;
     for (i=0; i<60; i++){
         mapctx.beginPath();
         mapctx.moveTo(221, i/6*10 + y0);

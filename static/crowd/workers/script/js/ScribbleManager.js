@@ -528,9 +528,6 @@ ScribbleManager.prototype.clearScribbleCollection = function(scene) {
 
     mapctx.clearRect(230, 0, 20, 200);
 
-    context.fillText("Slice 1", x2 + 257, 125);
-    context.fillText("Slice 60", x2 + 257, 375);
-
     context.lineWidth="5";
     context.strokeStyle = '#FF0058';
     context.fillStyle = 'black';

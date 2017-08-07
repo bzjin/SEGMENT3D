@@ -312,13 +312,11 @@ function createScribbleGeometry(points, radius, plane, append_single_endpoint) {
     /* Add scribble to storage of scribbles and update progress bar */
     if (slicen <= 59) {
         allScribbles[slicen].scribbles.push({"x": xp, "y": yp});
-        mapctx.fillStyle = "#F2B333";
-        mapctx.fillRect = (230, slicen/6*10 + 125, allScribbles[slicen].scribbles.length * 5/3, 5/3)
-        //console.log(allScribbles[slicen].scribbles.length)
+        
     }
 
+    meshArrayToDraw = coseGUI.meshLabels;
     //console.log(coseGUI.meshLabels);
-
     /* Append fashion show doobies 
     for (i = 0; i < coseGUI.meshLabels.length; i++){
         var renderthis = coseGUI.meshLabels[i];

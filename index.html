@@ -8,6 +8,7 @@
 
     <link rel="stylesheet"
           href="static/common/css/base.css">
+	<link rel="stylesheet" href="static/common/css/font-awesome.min.css">
 
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.0/jquery.min.js"></script>
 
@@ -647,10 +648,19 @@
 <body>
 
 <div class="title">
-    <a class="atitle" href="/">C3LLFI3</a>
-    <h4 class="subtitle"> Collaborative 3D Image Segmentation </h4>
-    <p class="ptitle">  Each cube is an image of a part of a plant stem cell in its natural 3D form. Your job is to segment each of these images correctly. </p>
-    <p class="ptitle">Instructions: </p>
+    <a> <span class="atitle" href="/">C3LLFI3</span> 
+    <span class="subtitle"> | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Collaborative 3D Image Segmentation </span></a>
+    <p class="ftitle">&copy; <a href="http://www.cambia.caltech.edu/">Center for Advanced Methods in Biological Image Analysis</a> &bull;
+    <a href="http://www.caltech.edu/">California Institute of Technology</a></p>
+</div>
+
+<span id ="openNav" style="font-size:30px;cursor:pointer" onclick="openNav()">
+	<i class="fa fa-info-circle" aria-hidden="true"></i>
+</span>
+<div id="mySidenav" class="sidenav">
+  <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&#x2715;</a>
+  <p class="ptitle">  Each cube is an image of a part of a plant stem cell in its natural 3D form. Your job is to segment each of these images correctly. </p>
+  <p class="ptitle">Instructions: </p>
     <p class="ptitle">1. 
     	<img src="icons/instruct1.png" class="instruct"> 
     	<img src="icons/mouse-clicker.png" class="iconinstruct"><br>
@@ -661,16 +671,8 @@
     	Move your mouse back and forth to see cell walls in the <span class="ycolor">y direction</span>.</p>   
     <p class="ptitle">3. Place "cell centers" where there are no cell walls.</p> 
     <p class="ptitle">4. Check the resulting 3D meshes. Edit or redo your segmentation if there are any non-convex cells, especially if they have an hourglass shape.</p> 
-    <br><br><br><br>
-    <p class="ftitle">&copy; <a href="http://www.cambia.caltech.edu/">Center for Advanced Methods in Biological Image Analysis</a> &bull;
-    <a href="http://www.caltech.edu/">California Institute of Technology</a></p>
 </div>
 
-<div class="nav">
-
-
-    
-</div>
 
 <div class="strip">
 
@@ -730,7 +732,7 @@
 
                     <div class="icon_button icon_button_selected tooltip" id="showSegmentation"
                          title="Click to show/hide canvas tracings">
-                         <span class="tooltiptext">Show segmentation</span>
+                         <span class="tooltiptext">Show raw data</span>
                         <img src="static/crowd/tileui/imgs/showStrokes.png">
                     </div>
 
@@ -739,17 +741,19 @@
                          title="3D border visualization">
                         <img src="static/crowd/tileui/imgs/view3DBorder.png">
                     </div>-->
+                   <div class="icon_button tooltip" id="view2DBorder"
+                         title="2D border visualization">
+                         <span class="tooltiptext">View 2D borders</span>
+                        <img src="static/crowd/tileui/imgs/view2DBorder.png">
+                    </div>
+
                     <div class="icon_button tooltip" id="view3DMeshes"
                          title="3D mesh visualization">
                        	<span class="tooltiptext">View 3D meshes</span>
                         <img src="static/crowd/tileui/imgs/view3DMeshes.png">
                     </div>
 
-                    <div class="icon_button tooltip" id="view2DBorder"
-                         title="2D border visualization">
-                         <span class="tooltiptext">View 2D borders</span>
-                        <img src="static/crowd/tileui/imgs/view2DBorder.png">
-                    </div>
+                    
                     <!--
                     <div class="icon_button" id="view2DLabel"
                          title="2D label visualization">

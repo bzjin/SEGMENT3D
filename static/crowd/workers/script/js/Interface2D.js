@@ -23,13 +23,43 @@ window.onload = function() {
 			.attr("width",  250)
 			.attr("height", 250);
 
-	/* Fashion show 
-	scenef = new THREE.Scene();
-	cameraf = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.1, 1000 );
 
-	rendererf = new THREE.WebGLRenderer();
-	rendererf.setSize( window.innerWidth, window.innerHeight );
-	document.selectElementById("fashionshow").appendChild( rendererf.domElement );*/
+	/* Fashion show  */
+	var scenef, cameraf, rendererf;
+
+	function initf() {
+		scenef = new THREE.Scene();
+		scenef.background = new THREE.Color( 0xffffff );
+
+		cameraf = new THREE.PerspectiveCamera( 45, window.innerWidth/window.innerHeight, .1, 1000 );
+
+		cameraf.lookAt(scenef.position);
+		cameraf.position.z = 8; 
+		//cameraf.position.set( 0, - 450, 400 );
+		//cameraf.rotation.x = 45 * ( Math.PI / 180 );
+		scenef.add( cameraf );
+		rendererf = new THREE.WebGLRenderer();
+		rendererf.setSize(850, 260);
+		document.getElementById("fashionshow").appendChild( rendererf.domElement );
+
+		animatef = function () {
+			requestAnimationFrame( animatef );
+			if (typeof meshArrayToDraw != 'undefined') {
+				for (i = 0; i < meshArrayToDraw.length; i++) {
+	        		meshArrayToDraw[i].rotation.x += .001;
+	        		meshArrayToDraw[i].rotation.y += .001;
+	        	}
+	        	console.log(meshArrayToDraw[i]);
+	        }
+			rendererf.render(scenef, cameraf);
+		};
+
+		animatef();
+	}
+
+	initf();
+
+	
 
 	/* Create all canvas contexts */
 	context = canvas.node().getContext("2d");
@@ -39,7 +69,6 @@ window.onload = function() {
     mapctx.strokeStyle = "white";
 
 	
-	
 	// Set up FIRST view of z axis
 	context2.font = "10px Effra";
 	context2.fillStyle = "white"
@@ -48,9 +77,10 @@ window.onload = function() {
 	context2.strokeStyle = '#F2B333';
 	context2.strokeRect(97, 122, 256, 256);
 
+	/*
 	context2.lineWidth="50";
 	context2.strokeStyle = 'rgba(255, 255, 255, .3)';
-	context2.strokeRect(125, 150, 200, 200);
+	context2.strokeRect(125, 150, 200, 200);*/
 
 	context2.lineWidth="1";
 	context2.strokeStyle = 'white';
@@ -58,12 +88,6 @@ window.onload = function() {
 	// Set up SECOND view of y axis
 	x2 = 25;
 	context.fillStyle =("white");
-	context.font = "10px Effra";
-	context.textAlign = "start";
-	context.textBaseline = "hanging";
-
-	context.fillText("Slice 1", x2 + 257, 125);
-	context.fillText("Slice 60", x2 + 257, 375);
 
 	context.beginPath();
 	context.lineWidth="5";
@@ -88,6 +112,39 @@ window.onload = function() {
         	changeXZPlane(mousePos.x, mousePos.y, sliceD, sliceMini);
         }
       }, false);
+
+	document.getElementById("container").addEventListener('click', function(evt) {
+        var mousePos = getMousePos(evt);
+        mxPos = mousePos.x;
+        myPos = mousePos.y;
+
+        if ((mousePos.x >= 0 && mousePos.x <= 250) && (mousePos.y >= 0 && mousePos.y <= 250)){
+        	while(scenef.children.length > 0){ 
+			    scenef.remove(scenef.children[0]); 
+			}
+
+        	for (i = 0; i < meshArrayToDraw.length; i++) {
+        		console.log(meshArrayToDraw);
+        		meshArrayToDraw[i].forceVisibility = BORDER_MESH_OVERLAY;
+        		meshArrayToDraw[i].visible = true;
+        		meshArrayToDraw[i].material.color.setHex( 0x2194ce);
+
+
+        		if (i < 8 ) {
+        			meshArrayToDraw[i].position.x = i - 4;
+        			meshArrayToDraw[i].position.y = 1;
+        		} else if (i >= 8 && i < 16 ) {
+        			meshArrayToDraw[i].position.x = i/2 - 4;
+        		} else {
+        			meshArrayToDraw[i].position.x = i/3 - 4;
+        			meshArrayToDraw[i].position.y = -1;        		
+        		}
+
+        		scenef.add(meshArrayToDraw[i]);
+        	}
+        	animatef();
+        }
+      }, false);
 /*
 	document.getElementById("container").addEventListener('scroll', function(evt) {
 		 var screenheight = parseInt($(document).height());
@@ -106,6 +163,7 @@ window.onload = function() {
         };
       }
 
+    /* changes planes on the right and calls update mini-map */
    function changeXZPlane(xPos, yPos, sliceD, sliceMini){
 	  	var xzurl = "";
 	  	var ySlice = Math.floor(yPos/250*60);
@@ -129,27 +187,36 @@ window.onload = function() {
  	 	 })*/
  	 	//console.log(globalD);
 
- 	    context.fillStyle = '#21A9CC';
-		context.fillRect(xPos + x2, 125, 1, 250); //vertical crosshair
+ 	 	//SECOND BOX CROSSHAIR
+
 		context.fillStyle = '#F2B333';
 		context.fillRect(x2, sliceD + 125, 250, 1); //horizontal crosshair
 
-		context2.clearRect(100, 125, 250, 250);
-		context2.lineWidth="50";
-		context2.strokeStyle = 'rgba(255, 255, 255, .3)';
-		context2.strokeRect(125, 150, 200, 200);
+		context.fillStyle = '#21A9CC';
+		context.beginPath();
+        context.arc(xPos + x2, sliceD + 125, 5, 2 * Math.PI, false); //travelling dot
+        context.fill(); 
 
+		//FIRST BOX CROSSHAIR
+		context2.clearRect(100, 125, 250, 250);
+		/*context2.lineWidth="50";
+		context2.strokeStyle = 'rgba(255, 255, 255, .3)';
+		context2.strokeRect(125, 150, 200, 200);*/
+/*
 		context2.lineWidth="1";
 		context2.fillStyle = '#21A9CC';
-		context2.fillRect(xPos + x2 + 85, 125, 1, 250); //vertical crosshair
+		context2.fillRect(xPos + x2 + 75, 125, 1, 250); //vertical crosshair
 		context2.fillStyle = '#FF0058';
-		context2.fillRect(x2 + 75, yPos + 133, 250, 1); //horizontal crosshair
-
+		context2.fillRect(x2 + 75, yPos + 125, 250, 1); //horizontal crosshair
+		*/
+		context.lineWidth="5";
+	    context.strokeStyle = '#FF0058';
+	    context.strokeRect(x2-3, 122, 256, 256);
 
 		drawCube(120, 225, 80, 100, 100, sliceMini, xPos/250, yPos/250);
-    }
+    } 
 
-    
+    /* draws mini-map on the left */
 	function drawCube(x, y, wx, wy, h, slice, xCh, yCh) {
 		mapctx.clearRect(0, 0, 230, 300);
 
@@ -163,7 +230,7 @@ window.onload = function() {
 	    mapctx.fill();
 	    mapctx.stroke();
 
-	    var y0 = 65;
+	    var y0 = 75;
 	    for (i=0; i<60; i++){
 	    	mapctx.beginPath();
 	    	mapctx.moveTo(221, i/6*10 + y0);
@@ -222,7 +289,16 @@ window.onload = function() {
 	 }
 	
 	
+	//console.log(meshArray);
 
 	 return null;
 
+}
+
+function openNav() {
+    document.getElementById("mySidenav").style.width = "250px";
+}
+
+function closeNav() {
+    document.getElementById("mySidenav").style.width = "0";
 }

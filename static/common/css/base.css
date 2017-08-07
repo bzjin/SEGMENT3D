@@ -50,7 +50,7 @@ body {
 
 .title {
   position: absolute;
-  z-index: 999;
+  z-index: 2;
   top: 0px;
   left: 0px;
   color: white;
@@ -60,21 +60,21 @@ body {
   font-style: normal;
   font-weight: 700;
   text-transform: uppercase;
-  width: 200px;
+  height: 100%;
 }
 
 .atitle {
   color: white;
   margin: 0px 0px 20px 10px;
   font-family: "Unica One", Helvetica, Arial;
-  font-size: 32px;
+  font-size: 18px;
   font-style: normal;
   font-weight: 700;
   text-transform: uppercase;
 }
 
 .subtitle {
-  color: white;
+  color: rgba(255, 255, 255, .5);
   margin: 0px 0px 10px 20px;
   font-family: "Unica One", Helvetica, Arial;
   font-size: 18px;
@@ -85,14 +85,17 @@ body {
 .ptitle {
   color: grey;
   font-weight: 300;
-  margin: 0px 0px 10px 20px;
+  margin: 20px;
+  padding-left: 10px;
   font-family: "Source Sans Pro", Helvetica, Arial;
   font-size: 12px;
   font-style: normal;
   text-transform: none;
+  padding-right: 20px;
 }
 
 .ftitle {
+  position: absolute;
   color: grey;
   font-weight: 300;
   margin: 0px 0px 10px 20px;
@@ -100,7 +103,7 @@ body {
   font-size: 12px;
   font-style: normal;
   text-transform: none;
-  bottom: 0px;
+  bottom: 20px;
 }
 
 .strip {
@@ -238,5 +241,32 @@ img.iconinstruct {
   height: 16px;
   width: 16px;
   padding: 4px;
+}
+
+.sidenav {
+    height: 100%;
+    width: 0;
+    position: fixed;
+    z-index: 4;
+    top: 0;
+    left: 0;
+    background-color: rgba(0, 0, 0, 1);
+    overflow-x: hidden;
+    transition: 0.5s;
+    padding-top: 40px;
+}
+
+
+.sidenav .closebtn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    font-size: 22px;
+    margin-left: 50px;
+}
+
+@media screen and (max-height: 450px) {
+  .sidenav {padding-top: 15px;}
+  .sidenav a {font-size: 18px;}
 }
 
