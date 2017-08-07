@@ -521,15 +521,24 @@ ScribbleManager.prototype.clearScribbleCollection = function(scene) {
     }
 
     context.clearRect(0, 100, 306, 350);
+    allScribbles = [];
+    for (i=0; i<60; i++){
+        allScribbles.push({"slice": i, "scribbles": []})
+    }
+
+    mapctx.clearRect(230, 0, 20, 200);
+
+    context.fillText("Slice 1", x2 + 257, 125);
+    context.fillText("Slice 60", x2 + 257, 375);
 
     context.lineWidth="5";
     context.strokeStyle = '#FF0058';
-    context.strokeRect(48, 123, 253, 253);
-
-    context.lineWidth="1";
     context.fillStyle = 'black';
+    context.fillRect(x2, 125, 250, 250);
+    context.strokeRect(x2-3, 122, 256, 256);
+   
+    context.lineWidth="1";
     context.strokeStyle = 'white';
-    context.fillRect(50, 125, 250, 250);
 };
 
 ScribbleManager.prototype.clearScribblesSelectedForRemoval = function(scene) {

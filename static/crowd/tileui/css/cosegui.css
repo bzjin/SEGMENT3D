@@ -16,6 +16,7 @@ div.canvas {
     height: 500px;
     margin-left: 10px;
     margin-right: auto;
+    margin-top: 10px;
 }
 
 /*div.canvas img {*/
@@ -36,8 +37,9 @@ div.canvas {
 .buttons {                                      /* root div to place buttons */
     display: inline-block;
     position: absolute;
-    top: 30px;
+    top: 50px;
     left: 625px;
+    z-index: 999;
     background: transparent;
     margin-left: auto;
     margin-right: auto;
@@ -45,18 +47,19 @@ div.canvas {
     border-style: solid;
     border-width: 0px;
     width: 300px;
-    height: 120px;                                /* same height of canvas + border */
+    height: 30px;                                /* same height of canvas + border */
     vertical-align: middle;
     overflow: hidden;
     float: left;
     cursor: pointer;
+    overflow: visible;
 }
 
 .buttons2 {                                      /* root div to place buttons */
     display: inline-block;
     position: absolute;
     left: 620px;
-    top: 360px;
+    top: 370px;
     z-index: 999;
     background: transparent;
     margin-left: auto;
@@ -135,13 +138,12 @@ div.canvas {
 
 .icon_button {
     display: inline-block;
-    overflow: hidden;
     position: relative;
     margin-left: auto;
     margin-right: auto;
     vertical-align: middle;
     background-color: none;
-    padding: 2px 2px;
+    padding: 1px 1px;
     margin: 1px 1px;
     border-color:  rgba(255, 255, 255, .5);
     border-style: solid;
@@ -200,11 +202,11 @@ img.large {
 div#grid2d{
     margin-top: 10px;
     height: 500px;
-    width: 400px;
+    width: 350px;
     float: right;
     position: absolute;
     top:0px;
-    margin-left: 800px;
+    margin-left: 820px;
 }
 
 canvas#keycanvas {
@@ -219,7 +221,7 @@ div#container {
 
 div#container2 {
     position: absolute !important;
-    top: 10px;
+    top: 0px;
     margin-left: 450px;
     pointer-events: none;
 }
@@ -239,16 +241,23 @@ div#minimap  {
     position: absolute;
     top:0px;
     margin-left: 250px;
-    border: solid white 1px;
+    border: solid rgba(255, 255, 255, .1) 1px;
 }
 
 div#fashionshow{
-
+    margin-top: 450px;
+    height: 260px;
+    width: 850px;
+    float: right;
+    position: absolute;
+    top:0px;
+    margin-left: 250px;
+    border: solid white 1px;
 }
 
 div#allElements {
     position:absolute;
-    top: -50px;
+    top: -30px;
     left: 100px;
 }
 

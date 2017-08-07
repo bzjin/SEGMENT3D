@@ -296,17 +296,47 @@ function createScribbleGeometry(points, radius, plane, append_single_endpoint) {
     //console.log(zp);
     slicen = +Math.floor(((zp+5)/10)*60);
     //console.log(slicen);
-    var slicex = +(xp+5) * 25;
-    var slicey = +(yp+5) * 25;
+    var slicex = +(xp+5)/10 * 250;
+    var slicey = +(yp+5)/10 * 250;
     //console.log(slicen, slicex, slicey)
 
-    context.fillStyle = "rgba(255,255,0, 1)";
+    /* Add scribble to 2nd view in the XZ plane */
+    /*context.fillStyle = "rgba(255,255,0, 1)";
     context.beginPath();
-    context.arc(40 + slicex, slicen/60*250 + 125, Math.sqrt(slicey/5), 0,  2 * Math.PI, true);               
+    context.arc(x2 + slicex - 8, slicen/60*100 + 125, Math.sqrt(slicey/5), 0,  2 * Math.PI, true);               
     context.fill();
-    context.closePath();
+    context.closePath();*/
 
     coseGUI.changeOrthogonalCameraView(XY_PLANE);
+   
+    /* Add scribble to storage of scribbles and update progress bar */
+    if (slicen <= 59) {
+        allScribbles[slicen].scribbles.push({"x": xp, "y": yp});
+        mapctx.fillStyle = "#F2B333";
+        mapctx.fillRect = (230, slicen/6*10 + 125, allScribbles[slicen].scribbles.length * 5/3, 5/3)
+        //console.log(allScribbles[slicen].scribbles.length)
+    }
+
+    //console.log(coseGUI.meshLabels);
+
+    /* Append fashion show doobies 
+    for (i = 0; i < coseGUI.meshLabels.length; i++){
+        var renderthis = coseGUI.meshLabels[i];
+        scenef.add( renderthis );
+        cameraf.position.z = 5;
+
+        var animatef = function () {
+            requestAnimationFrame( animate );
+
+            renderthis.rotation.x += 0.1;
+            renderthis.rotation.y += 0.1;
+
+            rendererf.render(scenef, cameraf);
+        };
+
+        animatef();
+    }*/
+
 
     if(points.length === 1) {
         if(plane !== undefined && plane !== null) {

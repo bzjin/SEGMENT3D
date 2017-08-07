@@ -1149,9 +1149,21 @@ CoseGUI.prototype.updateClippingPlane = function(boxDiagSize) {
 
     // Computing the distance between planes
     var d =  plane_at_origin.distanceToPoint(point_on_plane_at_camera_focus);
-    globalD = d;
-    //console.log(d);
-    this.clippingPlane = new THREE.Plane(this.clippingPlane.normal.clone(), d);
+    if (+d > -0.49 && +d < 0.49){
+        positiveD = d + .49;
+        adjD = positiveD * .6;
+        denD = .49*2 * .6;
+        //globalD = d;
+        //console.log(d);
+        this.clippingPlane = new THREE.Plane(this.clippingPlane.normal.clone(), d);
+
+        if ((mxPos >= 0 && mxPos <= 250) && (myPos >= 0 && myPos <= 250)){
+            var sliceD =  Math.floor(adjD/denD * 250);
+            var sliceMini =  Math.floor(adjD/denD * 100);
+            //console.log(sliceD, sliceMini)
+            changeXZPlane(mxPos, myPos, sliceD, sliceMini);
+        }
+    }
 };
 
 
@@ -1190,3 +1202,123 @@ CoseGUI.prototype.updateForRendering = function(img_data) {
         this.lightCamera.target.position.set(0, 0, 0);
     }
 };
+
+/*document.getElementById("container").addEventListener('mousemove', function(evt) {
+        var mousePos = getMousePos(evt);
+        if ((mousePos.x >= 0 && mousePos.x <= 250) && (mousePos.y >= 0 && mousePos.y <= 250)){
+            var sliceD =  Math.floor((+globalD + .866)/(2*.866) * 250);
+            var sliceMini =  Math.floor((+globalD + .866)/(2*.866) * 100);
+            changeXZPlane(mousePos.x, mousePos.y, sliceD, sliceMini);
+        }
+      }, false);*/
+
+function getMousePos(evt) {
+    var rect = document.getElementById("container").getBoundingClientRect();
+    return {
+        x: evt.clientX-rect.left - 110,
+        y: evt.clientY-rect.top - 135
+    };
+  }
+
+function changeXZPlane(xPos, yPos, sliceD, sliceMini){
+    var xzurl = "";
+    var ySlice = Math.floor(yPos/250*60);
+      
+      if (ySlice < 10) { 
+        xzurl = 'slices/xz_000' + ySlice + '.jpg';}
+      else { 
+        xzurl = 'slices/xz_00' + ySlice + '.jpg';}
+    
+    xzsq = new Image();
+
+    xzsq.src =  xzurl;
+
+    context.drawImage(xzsq, x2, 125, 250, 250);
+
+    /*drawnScribblesY[ySlice].scribbles.forEach(function(d){
+        context.beginPath();
+        context.arc(d.x + 350, d.y, 5, 0, 2 * Math.PI, false);
+        context.fillStyle = 'yellow';
+        context.fill();
+     })*/
+    //console.log(globalD);
+
+    context.fillStyle = '#21A9CC';
+    context.fillRect(xPos + x2, 125, 1, 250); //vertical crosshair
+    context.fillStyle = '#F2B333';
+    context.fillRect(x2, sliceD + 125, 250, 1); //horizontal crosshair
+
+    drawCube(120, 225, 80, 100, 100, sliceMini, xPos/250, yPos/250);
+}
+
+
+function drawCube(x, y, wx, wy, h, slice, xCh, yCh) {
+    mapctx.clearRect(0, 0, 230, 300);
+
+    mapctx.fillStyle = "#F2B333";
+    mapctx.beginPath();
+    mapctx.moveTo(x, y - 100 + slice);
+    mapctx.lineTo(x - wx, y - h - wx * 0.5 + slice);
+    mapctx.lineTo(x - wx + wy, y - h - (wx * 0.5 + wy * 0.5) + slice);
+    mapctx.lineTo(x + wy, y - h - wy * 0.5 + slice);
+    mapctx.closePath();
+    mapctx.fill();
+    mapctx.stroke();
+
+    var y0 = 65;
+    for (i=0; i<60; i++){
+        mapctx.beginPath();
+        mapctx.moveTo(221, i/6*10 + y0);
+        mapctx.lineTo(221 + allScribbles[i].scribbles.length * 5/3, i/6*10 + y0)
+        mapctx.lineTo(221 + allScribbles[i].scribbles.length * 5/3, i/6*10 + (y0+5/3))
+        mapctx.lineTo(221, i/6*10 + (y0+5/3))
+        mapctx.closePath();
+        mapctx.fill();
+    }
+
+    var lengthx = Math.hypot(wy, wy * 0.5) * xCh;
+    mapctx.translate(lengthx*Math.sin(Math.PI/3) + (xCh * 2), -lengthx*Math.cos(Math.PI/3) + (xCh * 5));
+    mapctx.strokeStyle = "#21A9CC";
+    mapctx.beginPath();
+    mapctx.moveTo(x, y - 100 + slice);
+    mapctx.lineTo(x - wx, y - h - wx * 0.5 + slice);
+    mapctx.closePath();
+    mapctx.stroke();
+    mapctx.translate(-lengthx*Math.sin(Math.PI/3) - (xCh * 2), lengthx*Math.cos(Math.PI/3) - (xCh * 5));
+
+    var lengthy = Math.hypot(wx, -100 + h + wx * 0.5) * yCh;
+    mapctx.strokeStyle = "#FF0058";
+    mapctx.translate(lengthy*Math.sin(Math.PI/3) + (yCh * 5), +lengthy*Math.cos(Math.PI/3) - (yCh * 2));
+    mapctx.beginPath();
+    mapctx.moveTo(x - wx, y - h - wx * 0.5 + slice);
+    mapctx.lineTo(x - wx + wy, y - h - (wx * 0.5 + wy * 0.5) + slice);
+    mapctx.closePath();
+    mapctx.stroke();
+    mapctx.translate(- lengthy*Math.sin(Math.PI/3) - (yCh * 5), -lengthy*Math.cos(Math.PI/3) + (yCh * 2));
+
+
+    mapctx.strokeStyle = "white";
+    mapctx.beginPath();
+    mapctx.moveTo(x, y);
+    mapctx.lineTo(x - wx, y - wx * 0.5);
+    mapctx.lineTo(x - wx, y - h - wx * 0.5);
+    mapctx.lineTo(x, y - h * 1);
+    mapctx.closePath();
+    mapctx.stroke();
+
+    mapctx.beginPath();
+    mapctx.moveTo(x, y);
+    mapctx.lineTo(x + wy, y - wy * 0.5);
+    mapctx.lineTo(x + wy, y - h - wy * 0.5);
+    mapctx.lineTo(x, y - h * 1);
+    mapctx.closePath();
+    mapctx.stroke();
+
+    mapctx.beginPath();
+    mapctx.moveTo(x, y - h);
+    mapctx.lineTo(x - wx, y - h - wx * 0.5);
+    mapctx.lineTo(x - wx + wy, y - h - (wx * 0.5 + wy * 0.5));
+    mapctx.lineTo(x + wy, y - h - wy * 0.5);
+    mapctx.closePath();
+    mapctx.stroke();
+ }

@@ -92,6 +92,17 @@ body {
   text-transform: none;
 }
 
+.ftitle {
+  color: grey;
+  font-weight: 300;
+  margin: 0px 0px 10px 20px;
+  font-family: "Source Sans Pro", Helvetica, Arial;
+  font-size: 12px;
+  font-style: normal;
+  text-transform: none;
+  bottom: 0px;
+}
+
 .strip {
   display: inline-block;
   position: relative;
@@ -180,20 +191,19 @@ a:hover {
 .tooltip .tooltiptext {
     visibility: hidden;
     width: 120px;
-    background-color: black;
-    color: #fff;
+    background-color: white;
+    color: black;
     text-align: center;
     border-radius: 6px;
     padding: 5px 0;
     position: absolute;
-    z-index: 1;
+    z-index: 999;
     bottom: 150%;
     left: 50%;
     margin-left: -60px;
 }
 
 .tooltip .tooltiptext::after {
-    content: "";
     position: absolute;
     top: 100%;
     left: 50%;
@@ -217,5 +227,16 @@ a:hover {
   font-family: "Source Sans Pro";
   font-size: 11px;
   color: #EA1D80;
+}
+
+img.instruct {
+  height: 32px;
+  width: 32px;
+}
+
+img.iconinstruct {
+  height: 16px;
+  width: 16px;
+  padding: 4px;
 }
 

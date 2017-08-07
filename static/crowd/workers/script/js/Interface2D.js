@@ -1,21 +1,46 @@
 window.onload = function() {
-	/* XZ view */
+	allScribbles = [];
 
+	for (i=0; i<60; i++){
+		allScribbles.push({"slice": i, "scribbles": []})
+	}
+
+	/* view along the y axis (second view) */
 	var canvas = d3.select("#grid2d").append("canvas")
 		.attr("id", "grid2d")
 		.attr("width",  400)
-		.attr("height", 500);
+		.attr("height", 400);
 
+	/* view along the z axis (first view) */
 	var canvas2 = d3.select("#container2").append("canvas")
 		.attr("id", "keycanvas")
 		.attr("width",  500)
 		.attr("height", 500);
 
+	/* Mini-map view */	
+	var minimap = d3.select("#minimap").append("canvas")
+			.attr("id", "minimapc")
+			.attr("width",  250)
+			.attr("height", 250);
+
+	/* Fashion show 
+	scenef = new THREE.Scene();
+	cameraf = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.1, 1000 );
+
+	rendererf = new THREE.WebGLRenderer();
+	rendererf.setSize( window.innerWidth, window.innerHeight );
+	document.selectElementById("fashionshow").appendChild( rendererf.domElement );*/
+
+	/* Create all canvas contexts */
 	context = canvas.node().getContext("2d");
 	context2 = canvas2.node().getContext("2d");
-	
-	context.fillStyle =("white");
 
+    mapctx = minimap.node().getContext("2d");
+    mapctx.strokeStyle = "white";
+
+	
+	
+	// Set up FIRST view of z axis
 	context2.font = "10px Effra";
 	context2.fillStyle = "white"
 	context2.beginPath();
@@ -23,7 +48,6 @@ window.onload = function() {
 	context2.strokeStyle = '#F2B333';
 	context2.strokeRect(97, 122, 256, 256);
 
-	context2.strokeStyle = 'white';
 	context2.lineWidth="50";
 	context2.strokeStyle = 'rgba(255, 255, 255, .3)';
 	context2.strokeRect(125, 150, 200, 200);
@@ -31,33 +55,48 @@ window.onload = function() {
 	context2.lineWidth="1";
 	context2.strokeStyle = 'white';
 
+	// Set up SECOND view of y axis
+	x2 = 25;
+	context.fillStyle =("white");
 	context.font = "10px Effra";
 	context.textAlign = "start";
 	context.textBaseline = "hanging";
 
-	context.fillText("Slice 1", 307, 125);
-	context.fillText("Slice 60", 307, 375);
+	context.fillText("Slice 1", x2 + 257, 125);
+	context.fillText("Slice 60", x2 + 257, 375);
 
 	context.beginPath();
 	context.lineWidth="5";
 	context.fillStyle = 'black';
 	context.strokeStyle = '#FF0058';
-	context.fillRect(50, 125, 250, 250);
-    context.strokeRect(48, 123, 252, 252);
+	context.fillRect(x2, 125, 250, 250);
+    context.strokeRect(x2-3, 122, 256, 256);
 	context.lineWidth="1";
 	context.strokeStyle = 'white';
 
+	mxPos = 0;
+    myPos = 0;
 	//console.log(CoseGUI.meshLabels)
 
 	document.getElementById("container").addEventListener('mousemove', function(evt) {
         var mousePos = getMousePos(evt);
+        mxPos = mousePos.x;
+        myPos = mousePos.y;
         if ((mousePos.x >= 0 && mousePos.x <= 250) && (mousePos.y >= 0 && mousePos.y <= 250)){
-        	changeXZPlane(mousePos.x, mousePos.y, slicen);
+        	var sliceD =  Math.floor(adjD/denD * 250);
+ 	 		var sliceMini =  Math.floor(adjD/denD * 100);
+        	changeXZPlane(mousePos.x, mousePos.y, sliceD, sliceMini);
         }
       }, false);
-
+/*
 	document.getElementById("container").addEventListener('scroll', function(evt) {
-	});
+		 var screenheight = parseInt($(document).height());
+         var scrolledpx = parseInt($("div#container").scrollTop());     
+         var sum = screenheight+scrolledpx;
+         console.log($("div#container").scrollTop());
+         console.log("screen: " + screenheight);
+         console.log("sum=" + sum);
+	}, false);*/
 
 	function getMousePos(evt) {
         var rect = document.getElementById("container").getBoundingClientRect();
@@ -67,7 +106,7 @@ window.onload = function() {
         };
       }
 
-   function changeXZPlane(xPos, yPos){
+   function changeXZPlane(xPos, yPos, sliceD, sliceMini){
 	  	var xzurl = "";
 	  	var ySlice = Math.floor(yPos/250*60);
 		  
@@ -80,7 +119,7 @@ window.onload = function() {
 
 	    xzsq.src =  xzurl;
 
-	    context.drawImage(xzsq, 50, 125, 250, 250);
+	    context.drawImage(xzsq, x2, 125, 250, 250);
 
 	    /*drawnScribblesY[ySlice].scribbles.forEach(function(d){
 			context.beginPath();
@@ -89,27 +128,30 @@ window.onload = function() {
          	context.fill();
  	 	 })*/
  	 	//console.log(globalD);
- 	 	var sliceD =  Math.floor((+globalD + .866)/(2*.866) * 250);
- 	 	var sliceMini =  Math.floor((+globalD + .866)/(2*.866) * 100);
 
  	    context.fillStyle = '#21A9CC';
-		context.fillRect(xPos + 50, 125, 1, 250); //vertical crosshair
+		context.fillRect(xPos + x2, 125, 1, 250); //vertical crosshair
 		context.fillStyle = '#F2B333';
-		context.fillRect(50, sliceD + 125, 250, 1); //horizontal crosshair
+		context.fillRect(x2, sliceD + 125, 250, 1); //horizontal crosshair
+
+		context2.clearRect(100, 125, 250, 250);
+		context2.lineWidth="50";
+		context2.strokeStyle = 'rgba(255, 255, 255, .3)';
+		context2.strokeRect(125, 150, 200, 200);
+
+		context2.lineWidth="1";
+		context2.fillStyle = '#21A9CC';
+		context2.fillRect(xPos + x2 + 85, 125, 1, 250); //vertical crosshair
+		context2.fillStyle = '#FF0058';
+		context2.fillRect(x2 + 75, yPos + 133, 250, 1); //horizontal crosshair
+
 
 		drawCube(120, 225, 80, 100, 100, sliceMini, xPos/250, yPos/250);
     }
 
-	var minimap = d3.select("#minimap").append("canvas")
-			.attr("id", "minimapc")
-			.attr("width",  250)
-			.attr("height", 250);
-
-    var mapctx = minimap.node().getContext("2d");
-    mapctx.strokeStyle = "white";
     
 	function drawCube(x, y, wx, wy, h, slice, xCh, yCh) {
-		mapctx.clearRect(0, 0, 300, 300);
+		mapctx.clearRect(0, 0, 230, 300);
 
 	    mapctx.fillStyle = "#F2B333";
 	    mapctx.beginPath();
@@ -120,6 +162,17 @@ window.onload = function() {
 	    mapctx.closePath();
 	    mapctx.fill();
 	    mapctx.stroke();
+
+	    var y0 = 65;
+	    for (i=0; i<60; i++){
+	    	mapctx.beginPath();
+	    	mapctx.moveTo(221, i/6*10 + y0);
+	    	mapctx.lineTo(221 + allScribbles[i].scribbles.length * 5/3, i/6*10 + y0)
+	   		mapctx.lineTo(221 + allScribbles[i].scribbles.length * 5/3, i/6*10 + (y0+5/3))
+	    	mapctx.lineTo(221, i/6*10 + (y0+5/3))
+	    	mapctx.closePath();
+	   		mapctx.fill();
+	    }
 
 	    var lengthx = Math.hypot(wy, wy * 0.5) * xCh;
         mapctx.translate(lengthx*Math.sin(Math.PI/3) + (xCh * 2), -lengthx*Math.cos(Math.PI/3) + (xCh * 5));
