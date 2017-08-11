@@ -1,3 +1,8 @@
+colorx = "white";
+colory = "#58BCA0";
+colorz = "#D2AA3B";
+//colorbg = ;
+
 window.onload = function() {
 	allScribbles = [];
 
@@ -20,8 +25,8 @@ window.onload = function() {
 	/* Mini-map view */	
 	var minimap = d3.select("#minimap").append("canvas")
 			.attr("id", "minimapc")
-			.attr("width",  250)
-			.attr("height", 250);
+			.attr("width",  300)
+			.attr("height", 300);
 
 
 	/* Fashion show  */
@@ -29,27 +34,30 @@ window.onload = function() {
 
 	function initf() {
 		scenef = new THREE.Scene();
-		scenef.background = new THREE.Color( 0xffffff );
+		scenef.background = new THREE.Color( 0x19203C );
 
-		cameraf = new THREE.PerspectiveCamera( 45, window.innerWidth/window.innerHeight, .1, 1000 );
+		cameraf = new THREE.PerspectiveCamera( 45, 1500/260, .1, 1000 );
+		lightf = new THREE.HemisphereLight( 0xffffbb, 0x080820, 1);
 
 		cameraf.lookAt(scenef.position);
 		cameraf.position.z = 8; 
 		//cameraf.position.set( 0, - 450, 400 );
 		//cameraf.rotation.x = 45 * ( Math.PI / 180 );
 		scenef.add( cameraf );
+		scenef.add( lightf );
+
 		rendererf = new THREE.WebGLRenderer();
-		rendererf.setSize(850, 260);
+		rendererf.setSize(1500, 260);
 		document.getElementById("fashionshow").appendChild( rendererf.domElement );
 
 		animatef = function () {
 			requestAnimationFrame( animatef );
 			if (typeof meshArrayToDraw != 'undefined') {
-				for (i = 0; i < meshArrayToDraw.length; i++) {
-	        		meshArrayToDraw[i].rotation.x += .001;
-	        		meshArrayToDraw[i].rotation.y += .001;
+				for (j = 0; j < meshArrayToDraw.length; j++) {
+	        		//meshArrayToDraw[j].rotation.x += .001;
+	        		//meshArrayToDraw[j].rotation.y += .001;
 	        	}
-	        	console.log(meshArrayToDraw[i]);
+	        	//console.log(meshArrayToDraw[i]);
 	        }
 			rendererf.render(scenef, cameraf);
 		};
@@ -74,7 +82,7 @@ window.onload = function() {
 	context2.fillStyle = "white"
 	context2.beginPath();
 	context2.lineWidth="5";
-	context2.strokeStyle = '#F2B333';
+	context2.strokeStyle = colorz;
 	context2.strokeRect(97, 122, 256, 256);
 
 	/*
@@ -92,7 +100,7 @@ window.onload = function() {
 	context.beginPath();
 	context.lineWidth="5";
 	context.fillStyle = 'black';
-	context.strokeStyle = '#FF0058';
+	context.strokeStyle = colory;
 	context.fillRect(x2, 125, 250, 250);
     context.strokeRect(x2-3, 122, 256, 256);
 	context.lineWidth="1";
@@ -107,9 +115,9 @@ window.onload = function() {
         mxPos = mousePos.x;
         myPos = mousePos.y;
         if ((mousePos.x >= 0 && mousePos.x <= 250) && (mousePos.y >= 0 && mousePos.y <= 250)){
-        	var sliceD =  Math.floor(adjD/denD * 250);
+        	/*var sliceD =  Math.floor(adjD/denD * 250);
  	 		var sliceMini =  Math.floor(adjD/denD * 100);
-        	changeXZPlane(mousePos.x, mousePos.y, sliceD, sliceMini);
+        	changeXZPlane(mousePos.x, mousePos.y, sliceD, sliceMini);*/
         }
       }, false);
 
@@ -123,23 +131,26 @@ window.onload = function() {
 			    scenef.remove(scenef.children[0]); 
 			}
 
+			lightf = new THREE.HemisphereLight( 0xffffbb, 0x080820, 10);
+			scenef.add( lightf );
+
         	for (i = 0; i < meshArrayToDraw.length; i++) {
-        		console.log(meshArrayToDraw);
         		meshArrayToDraw[i].forceVisibility = BORDER_MESH_OVERLAY;
         		meshArrayToDraw[i].visible = true;
-        		meshArrayToDraw[i].material.color.setHex( 0x2194ce);
-
+        		meshArrayToDraw[i].material.color.setHex( 0x044138);
+        		meshArrayToDraw[i].material.shininess = 30;
 
         		if (i < 8 ) {
-        			meshArrayToDraw[i].position.x = i - 4;
-        			meshArrayToDraw[i].position.y = 1;
+        			meshArrayToDraw[i].position.x = (i - 4) * 2;
+        			meshArrayToDraw[i].position.y = 1.5;
         		} else if (i >= 8 && i < 16 ) {
-        			meshArrayToDraw[i].position.x = i/2 - 4;
+        			meshArrayToDraw[i].position.x = (i/2 - 4) * 2;
         		} else {
-        			meshArrayToDraw[i].position.x = i/3 - 4;
-        			meshArrayToDraw[i].position.y = -1;        		
+        			meshArrayToDraw[i].position.x = (i/3 - 4) * 2;
+        			meshArrayToDraw[i].position.y = -1.5;        		
         		}
 
+        		console.log(meshArrayToDraw[i].position);
         		scenef.add(meshArrayToDraw[i]);
         	}
         	animatef();
@@ -189,10 +200,10 @@ window.onload = function() {
 
  	 	//SECOND BOX CROSSHAIR
 
-		context.fillStyle = '#F2B333';
+		context.fillStyle = colorz;
 		context.fillRect(x2, sliceD + 125, 250, 1); //horizontal crosshair
 
-		context.fillStyle = '#21A9CC';
+		context.fillStyle = colorx;
 		context.beginPath();
         context.arc(xPos + x2, sliceD + 125, 5, 2 * Math.PI, false); //travelling dot
         context.fill(); 
@@ -206,11 +217,11 @@ window.onload = function() {
 		context2.lineWidth="1";
 		context2.fillStyle = '#21A9CC';
 		context2.fillRect(xPos + x2 + 75, 125, 1, 250); //vertical crosshair
-		context2.fillStyle = '#FF0058';
+		context2.fillStyle = colory;
 		context2.fillRect(x2 + 75, yPos + 125, 250, 1); //horizontal crosshair
 		*/
 		context.lineWidth="5";
-	    context.strokeStyle = '#FF0058';
+	    context.strokeStyle = colory;
 	    context.strokeRect(x2-3, 122, 256, 256);
 
 		drawCube(120, 225, 80, 100, 100, sliceMini, xPos/250, yPos/250);
@@ -220,7 +231,7 @@ window.onload = function() {
 	function drawCube(x, y, wx, wy, h, slice, xCh, yCh) {
 		mapctx.clearRect(0, 0, 230, 300);
 
-	    mapctx.fillStyle = "#F2B333";
+	    mapctx.fillStyle = colorz;
 	    mapctx.beginPath();
 	    mapctx.moveTo(x, y - 100 + slice);
 	    mapctx.lineTo(x - wx, y - h - wx * 0.5 + slice);
@@ -243,7 +254,7 @@ window.onload = function() {
 
 	    var lengthx = Math.hypot(wy, wy * 0.5) * xCh;
         mapctx.translate(lengthx*Math.sin(Math.PI/3) + (xCh * 2), -lengthx*Math.cos(Math.PI/3) + (xCh * 5));
-	    mapctx.strokeStyle = "#21A9CC";
+	    mapctx.strokeStyle = colorx;
 	    mapctx.beginPath();
 	    mapctx.moveTo(x, y - 100 + slice);
 	   	mapctx.lineTo(x - wx, y - h - wx * 0.5 + slice);
@@ -251,8 +262,26 @@ window.onload = function() {
 	    mapctx.stroke();
         mapctx.translate(-lengthx*Math.sin(Math.PI/3) - (xCh * 2), lengthx*Math.cos(Math.PI/3) - (xCh * 5));
 
+ 		mapctx.translate(lengthx*Math.sin(Math.PI/3) + (xCh * 2), -lengthx*Math.cos(Math.PI/3) + (xCh * 5));
+	    mapctx.strokeStyle = colorx;
+	    mapctx.beginPath();
+	    mapctx.moveTo(x, y - 100);
+	   	mapctx.lineTo(x - wx, y - h - wx * 0.5);
+		mapctx.closePath();
+	    mapctx.stroke();
+        mapctx.translate(-lengthx*Math.sin(Math.PI/3) - (xCh * 2), lengthx*Math.cos(Math.PI/3) - (xCh * 5));
+
+        mapctx.translate(lengthx*Math.sin(Math.PI/3) + (xCh * 2), -lengthx*Math.cos(Math.PI/3) + (xCh * 5));
+	    mapctx.strokeStyle = colorx;
+	    mapctx.beginPath();
+	    mapctx.moveTo(x, y);
+	   	mapctx.lineTo(x - wx, y - h - wx * 0.5 + 100);
+		mapctx.closePath();
+	    mapctx.stroke();
+        mapctx.translate(-lengthx*Math.sin(Math.PI/3) - (xCh * 2), lengthx*Math.cos(Math.PI/3) - (xCh * 5));
+
         var lengthy = Math.hypot(wx, -100 + h + wx * 0.5) * yCh;
-        mapctx.strokeStyle = "#FF0058";
+        mapctx.strokeStyle = colory;
         mapctx.translate(lengthy*Math.sin(Math.PI/3) + (yCh * 5), +lengthy*Math.cos(Math.PI/3) - (yCh * 2));
 	    mapctx.beginPath();
 	    mapctx.moveTo(x - wx, y - h - wx * 0.5 + slice);

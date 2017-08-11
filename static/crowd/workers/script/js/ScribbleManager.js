@@ -179,7 +179,7 @@ Scribble.prototype.updateMeshes = function (visible, clippingPlane, curViewPlane
             var position = this.points[this.point_index[i][1]].world_coords;
             var dist = clippingPlane.distanceToPoint(position);
 
-            if(dist <= 0) {
+            if(dist == 0) {
                 // var K = 6;
                 // Setting opacity to give some sense of depth
                 // var max_dist = 1.0 / 2.0;
@@ -529,7 +529,7 @@ ScribbleManager.prototype.clearScribbleCollection = function(scene) {
     mapctx.clearRect(230, 0, 20, 200);
 
     context.lineWidth="5";
-    context.strokeStyle = '#FF0058';
+    context.strokeStyle = colory;
     context.fillStyle = 'black';
     context.fillRect(x2, 125, 250, 250);
     context.strokeRect(x2-3, 122, 256, 256);

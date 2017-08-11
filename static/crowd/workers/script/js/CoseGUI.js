@@ -1158,8 +1158,8 @@ CoseGUI.prototype.updateClippingPlane = function(boxDiagSize) {
         this.clippingPlane = new THREE.Plane(this.clippingPlane.normal.clone(), d);
 
         if ((mxPos >= 0 && mxPos <= 250) && (myPos >= 0 && myPos <= 250)){
-            var sliceD =  Math.floor(adjD/denD * 250);
-            var sliceMini =  Math.floor(adjD/denD * 100);
+            var sliceD =  Math.floor((denD - adjD)/denD * 250);
+            var sliceMini =  Math.floor((denD - adjD)/denD * 140);
             //console.log(sliceD, sliceMini)
             changeXZPlane(mxPos, myPos, sliceD, sliceMini);
         }
@@ -1225,9 +1225,9 @@ function changeXZPlane(xPos, yPos, sliceD, sliceMini){
     var ySlice = Math.floor(yPos/250*60);
       
       if (ySlice < 10) { 
-        xzurl = 'slices/xz_000' + ySlice + '.jpg';}
+        xzurl = 'slices/reslice_right_417_000' + ySlice + '.jpg';}
       else { 
-        xzurl = 'slices/xz_00' + ySlice + '.jpg';}
+        xzurl = 'slices/reslice_right_417_00' + ySlice + '.jpg';}
     
     xzsq = new Image();
 
@@ -1236,10 +1236,10 @@ function changeXZPlane(xPos, yPos, sliceD, sliceMini){
     context.drawImage(xzsq, x2, 125, 250, 250);
 
     //SECOND BOX CROSSHAIR
-    context.fillStyle = '#F2B333';
+    context.fillStyle = colorz;
     context.fillRect(x2, sliceD + 125, 250, 1); //horizontal crosshair
 
-    context.fillStyle = '#21A9CC';
+    context.fillStyle = colorx;
     context.beginPath();
     context.arc(xPos + x2, sliceD + 125, 5, 2 * Math.PI, false); //travelling dot
     context.fill(); 
@@ -1257,19 +1257,19 @@ function changeXZPlane(xPos, yPos, sliceD, sliceMini){
     context2.fillRect(x2 + 75, yPos + 125, 250, 1); //horizontal crosshair
     */
     context.lineWidth="5";
-    context.strokeStyle = '#FF0058';
+    context.strokeStyle = colory;
     context.strokeRect(x2-3, 122, 256, 256);
 
-    drawCube(120, 225, 80, 100, 100, sliceMini, xPos/250, yPos/250);
+    drawCube(130, 255, 100, 120, 140, sliceMini, xPos/250, yPos/250);
 }
 
 
 function drawCube(x, y, wx, wy, h, slice, xCh, yCh) {
-    mapctx.clearRect(0, 0, 230, 300);
+    mapctx.clearRect(0, 0, 300, 300);
 
-    mapctx.fillStyle = "#F2B333";
+    mapctx.fillStyle = colorz; //moving zplane
     mapctx.beginPath();
-    mapctx.moveTo(x, y - 100 + slice);
+    mapctx.moveTo(x, y - h + slice);
     mapctx.lineTo(x - wx, y - h - wx * 0.5 + slice);
     mapctx.lineTo(x - wx + wy, y - h - (wx * 0.5 + wy * 0.5) + slice);
     mapctx.lineTo(x + wy, y - h - wy * 0.5 + slice);
@@ -1277,33 +1277,70 @@ function drawCube(x, y, wx, wy, h, slice, xCh, yCh) {
     mapctx.fill();
     mapctx.stroke();
 
-    var y0 = 75;
-    for (i=0; i<60; i++){
+    var y0 = 67;
+    var mult = h/60 * 2.5;
+    for (i=0; i<60; i += 3){
         mapctx.beginPath();
-        mapctx.moveTo(221, i/6*10 + y0);
-        mapctx.lineTo(221 + allScribbles[i].scribbles.length * 5/3, i/6*10 + y0)
-        mapctx.lineTo(221 + allScribbles[i].scribbles.length * 5/3, i/6*10 + (y0+5/3))
-        mapctx.lineTo(221, i/6*10 + (y0+5/3))
+        mapctx.moveTo(26, i/60*h + y0);
+        mapctx.lineTo(26 - (allScribbles[i].scribbles.length + allScribbles[i+1].scribbles.length + allScribbles[i+2].scribbles.length ) * mult, i/60*h + y0)
+        mapctx.lineTo(26 - (allScribbles[i].scribbles.length + allScribbles[i+1].scribbles.length + allScribbles[i+2].scribbles.length ) * mult, i/60*h + (y0+mult))
+        mapctx.lineTo(26, i/60*h + (y0+mult))
         mapctx.closePath();
         mapctx.fill();
     }
 
     var lengthx = Math.hypot(wy, wy * 0.5) * xCh;
     mapctx.translate(lengthx*Math.sin(Math.PI/3) + (xCh * 2), -lengthx*Math.cos(Math.PI/3) + (xCh * 5));
-    mapctx.strokeStyle = "#21A9CC";
+    mapctx.strokeStyle = colorx;
     mapctx.beginPath();
-    mapctx.moveTo(x, y - 100 + slice);
+    mapctx.moveTo(x, y - h + slice);
     mapctx.lineTo(x - wx, y - h - wx * 0.5 + slice);
     mapctx.closePath();
     mapctx.stroke();
     mapctx.translate(-lengthx*Math.sin(Math.PI/3) - (xCh * 2), lengthx*Math.cos(Math.PI/3) - (xCh * 5));
 
-    var lengthy = Math.hypot(wx, -100 + h + wx * 0.5) * yCh;
-    mapctx.strokeStyle = "#FF0058";
+    var lengthy = Math.hypot(wx, -140 + h + wx * 0.5) * yCh; // y plane
+    mapctx.strokeStyle = colory;
     mapctx.translate(lengthy*Math.sin(Math.PI/3) + (yCh * 5), +lengthy*Math.cos(Math.PI/3) - (yCh * 2));
     mapctx.beginPath();
     mapctx.moveTo(x - wx, y - h - wx * 0.5 + slice);
     mapctx.lineTo(x - wx + wy, y - h - (wx * 0.5 + wy * 0.5) + slice);
+    mapctx.closePath();
+    mapctx.stroke();
+    mapctx.translate(- lengthy*Math.sin(Math.PI/3) - (yCh * 5), -lengthy*Math.cos(Math.PI/3) + (yCh * 2));
+
+    mapctx.strokeStyle = colory; //y top bar
+    mapctx.translate(lengthy*Math.sin(Math.PI/3) + (yCh * 5), +lengthy*Math.cos(Math.PI/3) - (yCh * 2));
+    mapctx.beginPath();
+    mapctx.moveTo(x - wx, y - h - wx * 0.5);
+    mapctx.lineTo(x - wx + wy, y - h - (wx * 0.5 + wy * 0.5));
+    mapctx.closePath();
+    mapctx.stroke();
+    mapctx.translate(- lengthy*Math.sin(Math.PI/3) - (yCh * 5), -lengthy*Math.cos(Math.PI/3) + (yCh * 2));
+
+    mapctx.strokeStyle = colory; //y bot bar
+    mapctx.translate(lengthy*Math.sin(Math.PI/3) + (yCh * 5), +lengthy*Math.cos(Math.PI/3) - (yCh * 2));
+    mapctx.beginPath();
+    mapctx.moveTo(x - wx, y - h - wx * 0.5 + h);
+    mapctx.lineTo(x - wx + wy, y - h - (wx * 0.5 + wy * 0.5) + h);
+    mapctx.closePath();
+    mapctx.stroke();
+    mapctx.translate(- lengthy*Math.sin(Math.PI/3) - (yCh * 5), -lengthy*Math.cos(Math.PI/3) + (yCh * 2));
+
+    mapctx.strokeStyle = colory; //y left bar
+    mapctx.translate(lengthy*Math.sin(Math.PI/3) + (yCh * 5), +lengthy*Math.cos(Math.PI/3) - (yCh * 2));
+    mapctx.beginPath();
+    mapctx.moveTo(x - wx, y - h - wx * 0.5);
+    mapctx.lineTo(x - wx, y - h - wx * 0.5 + h);
+    mapctx.closePath();
+    mapctx.stroke();
+    mapctx.translate(- lengthy*Math.sin(Math.PI/3) - (yCh * 5), -lengthy*Math.cos(Math.PI/3) + (yCh * 2));
+
+    mapctx.strokeStyle = colory; //y right bar
+    mapctx.translate(lengthy*Math.sin(Math.PI/3) + (yCh * 5), +lengthy*Math.cos(Math.PI/3) - (yCh * 2));
+    mapctx.beginPath();
+    mapctx.moveTo(x - wx + wy, y - h - (wx * 0.5 + wy * 0.5));
+    mapctx.lineTo(x - wx + wy, y - h - (wx * 0.5 + wy * 0.5) + h);
     mapctx.closePath();
     mapctx.stroke();
     mapctx.translate(- lengthy*Math.sin(Math.PI/3) - (yCh * 5), -lengthy*Math.cos(Math.PI/3) + (yCh * 2));

@@ -3,7 +3,7 @@
 <html lang="en-us">
 
 <head>
-    <title>C3LLFI3 | collaborative segmentation |
+    <title>SEGMENT3D | collaborative segmentation |
         Worker's index</title>
 
     <link rel="stylesheet"
@@ -648,10 +648,9 @@
 <body>
 
 <div class="title">
-    <a> <span class="atitle" href="/">C3LLFI3</span> 
-    <span class="subtitle"> | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Collaborative 3D Image Segmentation </span></a>
-    <p class="ftitle">&copy; <a href="http://www.cambia.caltech.edu/">Center for Advanced Methods in Biological Image Analysis</a> &bull;
-    <a href="http://www.caltech.edu/">California Institute of Technology</a></p>
+    <a> <span class="atitle" href="/">SEGMENT3D</span> 
+    <span class="subtitle"> | &nbsp;&nbsp;&nbsp;Collaborative 3D Image Segmentation </span></a>
+    
 </div>
 
 <span id ="openNav" style="font-size:30px;cursor:pointer" onclick="openNav()">
@@ -671,6 +670,8 @@
     	Move your mouse back and forth to see cell walls in the <span class="ycolor">y direction</span>.</p>   
     <p class="ptitle">3. Place "cell centers" where there are no cell walls.</p> 
     <p class="ptitle">4. Check the resulting 3D meshes. Edit or redo your segmentation if there are any non-convex cells, especially if they have an hourglass shape.</p> 
+    <p class="ftitle">&copy; <a href="http://www.cambia.caltech.edu/">Center for Advanced Methods in Biological Image Analysis</a> &bull;
+    <a href="http://www.caltech.edu/">California Institute of Technology</a></p>
 </div>
 
 
@@ -722,16 +723,16 @@
                 <div class="button_set transparent">
                     <div class="icon_button tooltip" id="undo" title="Undo">
                       	<span class="tooltiptext">Undo</span>
-                        <img src="static/crowd/tileui/imgs/undo.png">
+                        <img src="static/crowd/tileui/imgs/redo.png">
                     </div>
 
                     <div class="icon_button tooltip" id="redo" title="Redo">
                         <span class="tooltiptext">Redo</span>
-                        <img src="static/crowd/tileui/imgs/redo.png">
+                        <img src="static/crowd/tileui/imgs/undo.png">
                     </div>
 
                     <div class="icon_button icon_button_selected tooltip" id="showSegmentation"
-                         title="Click to show/hide canvas tracings">
+                         title="Show raw data">
                          <span class="tooltiptext">Show raw data</span>
                         <img src="static/crowd/tileui/imgs/showStrokes.png">
                     </div>
@@ -742,13 +743,13 @@
                         <img src="static/crowd/tileui/imgs/view3DBorder.png">
                     </div>-->
                    <div class="icon_button tooltip" id="view2DBorder"
-                         title="2D border visualization">
+                         title="View 2D borders">
                          <span class="tooltiptext">View 2D borders</span>
                         <img src="static/crowd/tileui/imgs/view2DBorder.png">
                     </div>
 
                     <div class="icon_button tooltip" id="view3DMeshes"
-                         title="3D mesh visualization">
+                         title="View 3D meshes">
                        	<span class="tooltiptext">View 3D meshes</span>
                         <img src="static/crowd/tileui/imgs/view3DMeshes.png">
                     </div>
@@ -820,12 +821,14 @@
         </div>	
 
         <div id="allElements">
+        	<div id="shadow"> </div>
 	        <div class="canvas" id="container"> </div>
 	        <div class="canvas" id="container2"> </div>
 	        <div class="canvas" id="grid2d"> </div>
 	        <div class="canvas" id="minimap"> </div>
-	        <div class="canvas" id="fashionshow"> </div>
 	    </div>
+
+ 		<div id="fashionshow"> </div>
 
     </div>
 

@@ -315,7 +315,10 @@ function createScribbleGeometry(points, radius, plane, append_single_endpoint) {
         
     }
 
-    meshArrayToDraw = coseGUI.meshLabels;
+    meshArrayToDraw = [];
+    for (i = 0; i < coseGUI.meshLabels.length; i++) {
+        meshArrayToDraw.push(coseGUI.meshLabels[i]);
+    }
     //console.log(coseGUI.meshLabels);
     /* Append fashion show doobies 
     for (i = 0; i < coseGUI.meshLabels.length; i++){
