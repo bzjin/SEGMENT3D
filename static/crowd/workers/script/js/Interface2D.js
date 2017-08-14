@@ -34,13 +34,13 @@ window.onload = function() {
 
 	function initf() {
 		scenef = new THREE.Scene();
-		scenef.background = new THREE.Color( 0x19203C );
+		scenef.background = new THREE.Color( 0x0 );
 
 		cameraf = new THREE.PerspectiveCamera( 45, 1500/260, .1, 1000 );
 		lightf = new THREE.HemisphereLight( 0xffffbb, 0x080820, 1);
 
 		cameraf.lookAt(scenef.position);
-		cameraf.position.z = 8; 
+		cameraf.position.z = 2; 
 		//cameraf.position.set( 0, - 450, 400 );
 		//cameraf.rotation.x = 45 * ( Math.PI / 180 );
 		scenef.add( cameraf );
@@ -54,16 +54,18 @@ window.onload = function() {
 			requestAnimationFrame( animatef );
 			if (typeof meshArrayToDraw != 'undefined') {
 				for (j = 0; j < meshArrayToDraw.length; j++) {
-	        		//meshArrayToDraw[j].rotation.x += .001;
-	        		//meshArrayToDraw[j].rotation.y += .001;
-	        	}
-	        	//console.log(meshArrayToDraw[i]);
-	        }
-			rendererf.render(scenef, cameraf);
-		};
+	        		meshArrayToDraw[j].rotation.x += .001;
+	        		meshArrayToDraw[j].rotation.y += .001;
+	        			        	console.log(meshArrayToDraw[j]);
 
-		animatef();
-	}
+	        	}
+	        }
+				rendererf.render(scenef, cameraf);
+			};
+
+			animatef();
+			//update();
+		}
 
 	initf();
 
@@ -81,9 +83,9 @@ window.onload = function() {
 	context2.font = "10px Effra";
 	context2.fillStyle = "white"
 	context2.beginPath();
-	context2.lineWidth="5";
+	context2.lineWidth="10";
 	context2.strokeStyle = colorz;
-	context2.strokeRect(97, 122, 256, 256);
+	context2.strokeRect(95, 120, 260, 260);
 
 	/*
 	context2.lineWidth="50";
@@ -110,8 +112,11 @@ window.onload = function() {
     myPos = 0;
 	//console.log(CoseGUI.meshLabels)
 
+
 	document.getElementById("container").addEventListener('mousemove', function(evt) {
         var mousePos = getMousePos(evt);
+        onDocumentMouseDown( evt);
+
         mxPos = mousePos.x;
         myPos = mousePos.y;
         if ((mousePos.x >= 0 && mousePos.x <= 250) && (mousePos.y >= 0 && mousePos.y <= 250)){
@@ -140,31 +145,22 @@ window.onload = function() {
         		meshArrayToDraw[i].material.color.setHex( 0x044138);
         		meshArrayToDraw[i].material.shininess = 30;
 
-        		if (i < 8 ) {
-        			meshArrayToDraw[i].position.x = (i - 4) * 2;
-        			meshArrayToDraw[i].position.y = 1.5;
-        		} else if (i >= 8 && i < 16 ) {
-        			meshArrayToDraw[i].position.x = (i/2 - 4) * 2;
+        		if (i < 15 ) {
+        			meshArrayToDraw[i].position.x = (i - 7) * 2;
+        			meshArrayToDraw[i].position.y = 0;
+        		} else if (i >= 15 && i < 30 ) {
+        			meshArrayToDraw[i].position.x = (i/2 - 7) * 2;
         		} else {
-        			meshArrayToDraw[i].position.x = (i/3 - 4) * 2;
+        			meshArrayToDraw[i].position.x = (i/3 - 7) * 2;
         			meshArrayToDraw[i].position.y = -1.5;        		
         		}
 
-        		console.log(meshArrayToDraw[i].position);
+        		//console.log(meshArrayToDraw[i].position);
         		scenef.add(meshArrayToDraw[i]);
         	}
         	animatef();
         }
       }, false);
-/*
-	document.getElementById("container").addEventListener('scroll', function(evt) {
-		 var screenheight = parseInt($(document).height());
-         var scrolledpx = parseInt($("div#container").scrollTop());     
-         var sum = screenheight+scrolledpx;
-         console.log($("div#container").scrollTop());
-         console.log("screen: " + screenheight);
-         console.log("sum=" + sum);
-	}, false);*/
 
 	function getMousePos(evt) {
         var rect = document.getElementById("container").getBoundingClientRect();
@@ -324,8 +320,50 @@ window.onload = function() {
 
 }
 
+function onDocumentMouseDown( event ) 
+{
+    event.preventDefault();
+    mouseX =  ( event.clientX / window.innerWidth ) * 2 - 1;
+    mouseY = - ( event.clientY / window.innerHeight ) * 2 + 1;
+}
+
+function update()
+{
+
+    var vector = new THREE.Vector3( mouseX, mouseY, 1 );
+    projector.unprojectVector( vector, cameraf);
+
+    var ray = new THREE.Ray( cameraf.position, vector.subSelf( cameraf.position ).normalize() );
+    var intersects = ray.intersectObjects( scenef.children );
+
+    if ( intersects.length > 0 ) {
+
+        if ( intersects[ 0 ].object != INTERSECTED ) 
+        {/*
+            if ( INTERSECTED ) 
+                INTERSECTED.material.color.setHex( INTERSECTED.currentHex );
+                // store reference to closest object as current intersection object
+                INTERSECTED = intersects[ 0 ].object;
+                // store color of closest object (for later restoration)
+                INTERSECTED.currentHex = INTERSECTED.material.color.getHex();
+                // set a new color for closest object
+                INTERSECTED.material.color.setHex( 0xffff00 );  */
+
+        }
+    } else {// there are no intersections 
+            // restore previous intersection object (if it exists) to its original color
+            if ( INTERSECTED ) 
+                INTERSECTED.material.color.setHex( INTERSECTED.currentHex );
+                // remove previous intersection object reference
+                //     by setting current intersection object to "nothing"
+                INTERSECTED = null;
+
+    }
+}
+
+
 function openNav() {
-    document.getElementById("mySidenav").style.width = "250px";
+    document.getElementById("mySidenav").style.width = "500px";
 }
 
 function closeNav() {

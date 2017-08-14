@@ -1158,6 +1158,7 @@ CoseGUI.prototype.updateClippingPlane = function(boxDiagSize) {
         this.clippingPlane = new THREE.Plane(this.clippingPlane.normal.clone(), d);
 
         if ((mxPos >= 0 && mxPos <= 250) && (myPos >= 0 && myPos <= 250)){
+            //console.log(mxPos, myPos);
             var sliceD =  Math.floor((denD - adjD)/denD * 250);
             var sliceMini =  Math.floor((denD - adjD)/denD * 140);
             //console.log(sliceD, sliceMini)
@@ -1280,6 +1281,7 @@ function drawCube(x, y, wx, wy, h, slice, xCh, yCh) {
     var y0 = 67;
     var mult = h/60 * 2.5;
     for (i=0; i<60; i += 3){
+        mapctx.fillStyle = "#FDE187";
         mapctx.beginPath();
         mapctx.moveTo(26, i/60*h + y0);
         mapctx.lineTo(26 - (allScribbles[i].scribbles.length + allScribbles[i+1].scribbles.length + allScribbles[i+2].scribbles.length ) * mult, i/60*h + y0)

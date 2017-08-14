@@ -10,7 +10,7 @@
 
 @font-face {
   font-family: "Unica One";
-  src: url('Montserrat-Bold.otf');
+  src: url('Montserrat-Regular.otf');
 }
 
 @font-face {
@@ -40,7 +40,7 @@ html {
 body {
   color: #000;
   overflow-x: hidden;
-  background-color: #0E1429;
+  background-color: #2a2a2a;
   /*background-color: rgb(0,0,0);*/
   margin: auto;
   /*background-image: url(../imgs/alicebg.jpg);*/
@@ -57,22 +57,20 @@ body {
   position: absolute;
   z-index: 2;
   top: 0px;
-  left: 0px;
+  left: 605px;
   color: white;
   margin: 20px 10px 20px 10px;
   font-family: "Unica One", Helvetica, Arial;
-  font-size: 16pt;
   font-style: normal;
   font-weight: 700;
   text-transform: uppercase;
-  height: 100%;
 }
 
 .atitle {
   color: white;
   margin: 0px 0px 20px 10px;
   font-family: "Unica One", Helvetica, Arial;
-  font-size: 18px;
+  font-size: 14px;
   font-style: normal;
   font-weight: 700;
   text-transform: uppercase;
@@ -80,9 +78,9 @@ body {
 
 .subtitle {
   color: rgba(255, 255, 255, .5);
-  margin: 0px 0px 10px 20px;
+  margin: 0px 0px 0px 10px;
   font-family: "Montserrat Light", Helvetica, Arial;
-  font-size: 18px;
+  font-size: 14px;
   font-style: normal;
 }
 
@@ -92,7 +90,7 @@ body {
   margin: 20px;
   padding-left: 10px;
   font-family: "Source Sans Pro", Helvetica, Arial;
-  font-size: 12px;
+  font-size: 14px;
   font-style: normal;
   text-transform: none;
   padding-right: 20px;
@@ -226,14 +224,12 @@ a:hover {
 
 .zcolor {
   font-family: "Source Sans Pro";
-  font-size: 11px;
   color: #F2B333;
 }
 
 .ycolor {
   font-family: "Source Sans Pro";
-  font-size: 11px;
-  color: #EA1D80;
+  color: #58BCA0;
 }
 
 img.instruct {
@@ -251,7 +247,7 @@ img.iconinstruct {
     height: 100%;
     width: 0;
     position: fixed;
-    z-index: 4;
+    z-index: 8;
     top: 0;
     left: 0;
     background-color: rgba(0, 0, 0, 1);
@@ -272,5 +268,15 @@ img.iconinstruct {
 @media screen and (max-height: 450px) {
   .sidenav {padding-top: 15px;}
   .sidenav a {font-size: 18px;}
+}
+
+.instructimg {
+  width: 16px;
+  height: 16px;
+}
+
+.txtbtn {
+  font-weight: 700;
+  color: white;
 }
 

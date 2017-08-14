@@ -179,11 +179,13 @@ Scribble.prototype.updateMeshes = function (visible, clippingPlane, curViewPlane
             var position = this.points[this.point_index[i][1]].world_coords;
             var dist = clippingPlane.distanceToPoint(position);
 
-            if(dist == 0) {
+            if(dist >= 0) {
                 // var K = 6;
                 // Setting opacity to give some sense of depth
-                // var max_dist = 1.0 / 2.0;
-
+                var max_dist = 1.0 / 2.0;
+                //var colorscale = d3.scaleLinear()
+                                //.domain([0, ])
+                                //.range(["#fff7bc","#662506"])
                 // If delineation occurred, we only let the scribbles from labels intersected by the clipping plane
                 // to be visible
                 if(coseGUI.meshLabels.length > 0) {
@@ -194,9 +196,10 @@ Scribble.prototype.updateMeshes = function (visible, clippingPlane, curViewPlane
                                                                             clippingPlaneDir);
 
                         this.meshes[i].material.transparent = true;
-                        this.meshes[i].material.opacity = 1.0;
-                        // K = 3;
-                        // this.meshes[i].material.opacity = Math.exp(-K*Math.abs(dist) / (max_dist));
+                        //this.meshes[i].material.opacity = 1.0;
+                         var K = 8;
+                        //this.meshes[i].material.color.setHex(colorscale(Math.exp(-K*Math.abs(dist) / (max_dist))));
+                        this.meshes[i].material.opacity = Math.exp(-K*Math.abs(dist) / (max_dist));
                         // this.meshes[i].material.opacity = 0.5;
                         //this.meshes[i].material.wireframe = Math.exp(-K*Math.abs(dist) / (max_dist)) < 0.5;
                         // this.meshes[i].material.wireframe = true;

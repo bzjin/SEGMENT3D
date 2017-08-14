@@ -649,7 +649,7 @@
 
 <div class="title">
     <a> <span class="atitle" href="/">SEGMENT3D</span> 
-    <span class="subtitle"> | &nbsp;&nbsp;&nbsp;Collaborative 3D Image Segmentation </span></a>
+    <span class="subtitle"> | &nbsp; Cell Segmentation</span></a>
     
 </div>
 
@@ -658,19 +658,42 @@
 </span>
 <div id="mySidenav" class="sidenav">
   <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&#x2715;</a>
-  <p class="ptitle">  Each cube is an image of a part of a plant stem cell in its natural 3D form. Your job is to segment each of these images correctly. </p>
+  <p class="ptitle"> Welcome! </p>
+  <p class="ptitle"> This cube is a stack of 60 "x-ray"-like images of plant cells. Each image - or "slice" - shows cell walls in off-white/gray tones. Our software can guess where the cell walls are based on these x-ray walls, but we need your help to confirm the boundaries. </p>
+  
+  <p class="ptitle"> Working through each slice, drop a stamp in each cell center until the entire cube is populated with cell walls. Check the gallery to make sure none have a concave shape. </p>
+  
+
   <p class="ptitle">Instructions: </p>
+    
     <p class="ptitle">1. 
-    	<img src="icons/instruct1.png" class="instruct"> 
-    	<img src="icons/mouse-clicker.png" class="iconinstruct"><br>
-    	Scroll up and down in the <span class="zcolor">z direction</span> to see cell walls. </p>
+    	Hold your mouse over the <span class="zcolor">yellow viewport</span> and scroll up and down the slices of cell walls. Move your mouse within the yellow viewport to navigate through the slice. The reference cube to your left will show you where you are on the <span class="zcolor">z-axis</span>. The <span class="ycolor">green viewport</span> to your right will show you where you are on the y-axis.</p>
     <p class="ptitle">2. 
-    	<img src="icons/instruct2.png" class="instruct"> 
-    	<img src="icons/cursor.png" class="iconinstruct"> <br> 
-    	Move your mouse back and forth to see cell walls in the <span class="ycolor">y direction</span>.</p>   
-    <p class="ptitle">3. Place "cell centers" where there are no cell walls.</p> 
-    <p class="ptitle">4. Check the resulting 3D meshes. Edit or redo your segmentation if there are any non-convex cells, especially if they have an hourglass shape.</p> 
-    <p class="ftitle">&copy; <a href="http://www.cambia.caltech.edu/">Center for Advanced Methods in Biological Image Analysis</a> &bull;
+    	When you are ready to place a stamp, select the <img class="instructimg" src="static/crowd/tileui/imgs/selectAddTool.png"> icon and click on the desired spot in the <span class="zcolor">yellow viewport</span>. Make sure you're clicking on a clear background that doesn't overlap with any cell walls. Cross-check the <span class="ycolor">green viewport </span>to ensure there is no wall there in the y position, either.</p>  
+
+    <p class="ptitle">3. When cell walls have been drawn, 3D cell renderings will appear in the gallery below. Check the renderings to ensure none have a concave (hourglass) shape. If you see a concave shape, click the <img class="instructimg" src="static/crowd/tileui/imgs/eraseMode.png"> icon to delete a stamp and try again.</p>
+
+    <p class="ptitle">4. If the data is too hard to decipher, press <span class="txtbtn">SKIP</span> to start over with a new cube.</p> 
+
+    <p class="ptitle">5. As you populate the cube with cell walls, a progress bar on the reference cube will track where you've dropped stamps. Select the <img class="instructimg" src="static/crowd/tileui/imgs/view3DMeshes.png"> icon to see a 3D rendering of the cells in the yellow viewport and confirm there are no blank spaces (i.e., missing colored, volumetric cell renderings) as you scroll through the slices. </p>
+
+    <p class="ptitle">6. When the whole cube has been populated with cell walls, press <span class="txtbtn">SUBMIT</span> to finish. </p>
+
+  <p class="ptitle">Thank you! </p>
+
+  <p class="ptitle">Icon glossary: </p>
+  <p class="ptitle"> 
+	  <img class="instructimg" src="static/crowd/tileui/imgs/undo.png"> Undo <br>
+	  <img class="instructimg" src="static/crowd/tileui/imgs/redo.png"> Redo <br>
+	  <img class="instructimg" src="static/crowd/tileui/imgs/view2DBorder.png"> Cell walls <br>
+	  <img class="instructimg" src="static/crowd/tileui/imgs/view3DMeshes.png"> Cell renderings <br>
+	  <img class="instructimg" src="static/crowd/tileui/imgs/selectAddTool.png"> Draw cell center <br>
+	  <img class="instructimg" src="static/crowd/tileui/imgs/eraseMode.png"> Delete cell center
+</p>
+
+  <p class="ptitle">Questions or comments? Please email [Alex's email address] </p>
+
+    <p class="ptitle">&copy; <a href="http://www.cambia.caltech.edu/">Center for Advanced Methods in Biological Image Analysis</a> &bull;
     <a href="http://www.caltech.edu/">California Institute of Technology</a></p>
 </div>
 
@@ -732,21 +755,21 @@
                     </div>
 
                     <div class="icon_button icon_button_selected tooltip" id="showSegmentation"
-                         title="Show raw data">
+                         title="View 2D borders">
                          <span class="tooltiptext">Show raw data</span>
-                        <img src="static/crowd/tileui/imgs/showStrokes.png">
+                        <img src="static/crowd/tileui/imgs/view2DBorder.png">
                     </div>
 
                 <!--
                     <div class="icon_button" id="view3DBorder"
                          title="3D border visualization">
                         <img src="static/crowd/tileui/imgs/view3DBorder.png">
-                    </div>-->
+                    </div>
                    <div class="icon_button tooltip" id="view2DBorder"
                          title="View 2D borders">
                          <span class="tooltiptext">View 2D borders</span>
                         <img src="static/crowd/tileui/imgs/view2DBorder.png">
-                    </div>
+                    </div> -->
 
                     <div class="icon_button tooltip" id="view3DMeshes"
                          title="View 3D meshes">
