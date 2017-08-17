@@ -40,7 +40,7 @@ window.onload = function() {
 		lightf = new THREE.HemisphereLight( 0xffffbb, 0x080820, 1);
 
 		cameraf.lookAt(scenef.position);
-		cameraf.position.z = 2; 
+		cameraf.position.z = 5; 
 		//cameraf.position.set( 0, - 450, 400 );
 		//cameraf.rotation.x = 45 * ( Math.PI / 180 );
 		scenef.add( cameraf );
@@ -54,8 +54,8 @@ window.onload = function() {
 			requestAnimationFrame( animatef );
 			if (typeof meshArrayToDraw != 'undefined') {
 				for (j = 0; j < meshArrayToDraw.length; j++) {
-	        		meshArrayToDraw[j].rotation.x += .001;
-	        		meshArrayToDraw[j].rotation.y += .001;
+	        		//meshArrayToDraw[j].rotation.x += .001;
+	        		//meshArrayToDraw[j].rotation.y += .001;
 	        			        	console.log(meshArrayToDraw[j]);
 
 	        	}
@@ -146,12 +146,12 @@ window.onload = function() {
         		meshArrayToDraw[i].material.shininess = 30;
 
         		if (i < 15 ) {
-        			meshArrayToDraw[i].position.x = (i - 7) * 2;
+        			meshArrayToDraw[i].position.x = (i - 9) * 2;
         			meshArrayToDraw[i].position.y = 0;
         		} else if (i >= 15 && i < 30 ) {
-        			meshArrayToDraw[i].position.x = (i/2 - 7) * 2;
+        			meshArrayToDraw[i].position.x = (i/2 - 9) * 2;
         		} else {
-        			meshArrayToDraw[i].position.x = (i/3 - 7) * 2;
+        			meshArrayToDraw[i].position.x = (i/3 - 9) * 2;
         			meshArrayToDraw[i].position.y = -1.5;        		
         		}
 

@@ -1283,10 +1283,10 @@ function drawCube(x, y, wx, wy, h, slice, xCh, yCh) {
     for (i=0; i<60; i += 3){
         mapctx.fillStyle = "#FDE187";
         mapctx.beginPath();
-        mapctx.moveTo(26, i/60*h + y0);
-        mapctx.lineTo(26 - (allScribbles[i].scribbles.length + allScribbles[i+1].scribbles.length + allScribbles[i+2].scribbles.length ) * mult, i/60*h + y0)
-        mapctx.lineTo(26 - (allScribbles[i].scribbles.length + allScribbles[i+1].scribbles.length + allScribbles[i+2].scribbles.length ) * mult, i/60*h + (y0+mult))
-        mapctx.lineTo(26, i/60*h + (y0+mult))
+        mapctx.moveTo(26, -i/60*h + y0 + 130);
+        mapctx.lineTo(26 - (allScribbles[i].scribbles.length + allScribbles[i+1].scribbles.length + allScribbles[i+2].scribbles.length ) * mult, -i/60*h + y0 + 130)
+        mapctx.lineTo(26 - (allScribbles[i].scribbles.length + allScribbles[i+1].scribbles.length + allScribbles[i+2].scribbles.length ) * mult, -i/60*h + (y0+mult) + 130)
+        mapctx.lineTo(26, -i/60*h + (y0+mult) + 130)
         mapctx.closePath();
         mapctx.fill();
     }
